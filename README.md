@@ -22,17 +22,16 @@ npm run preview    # preview the production build
 
 All copy and links live in `src/data/site.ts`. Components do not contain copy.
 
-## Replacing placeholders
+## Remaining placeholders
 
-Search the project for `TODO` to find everything that still needs a real value:
+Search the project for `TODO` to find what still needs a real value:
 
-1. `links.github`, `links.releases`, `links.download`, `links.coffee`
-   in `src/data/site.ts`
-2. `site` in `astro.config.mjs` — set it to your Vercel production URL
-3. The screenshot: add a real image to `src/screenshots/`, import it in
+1. The screenshot: add a real image to `src/screenshots/`, import it in
    `src/components/Hero.astro`, and pass it to `WindowFrame` as `src`
-4. The optional Open Graph image in `src/layouts/Layout.astro`
-5. The Windows version requirement, after verifying it for the current release
+2. The optional Open Graph image in `src/layouts/Layout.astro`
+3. The Windows version requirement, after verifying it for the current release
+
+If you add a custom domain, update `site` in `astro.config.mjs` as well.
 
 ## Deploying to Vercel
 

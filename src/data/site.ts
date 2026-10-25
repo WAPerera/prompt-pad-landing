@@ -36,21 +36,13 @@ export interface FaqItem {
 
 /**
  * Every outbound link is defined here exactly once.
- *
- * TODO: Replace these placeholder URLs with your real ones.
  */
 export const links = {
-  /** TODO: Replace with your GitHub repository URL. */
-  github: 'https://github.com/YOUR-USERNAME/prompt-pad',
-  /** TODO: Replace with your releases page URL. */
-  releases: 'https://github.com/YOUR-USERNAME/prompt-pad/releases',
-  /**
-   * TODO: Replace with your download URL. This points at the latest release;
-   * use a direct installer URL instead if you prefer.
-   */
-  download: 'https://github.com/YOUR-USERNAME/prompt-pad/releases/latest',
-  /** TODO: Replace with your coffee / support link. */
-  coffee: 'https://example.com/your-coffee-link',
+  github: 'https://github.com/WAPerera/Prompt-pad',
+  releases: 'https://github.com/WAPerera/Prompt-pad/releases',
+  /** Always points at the newest published release. */
+  download: 'https://github.com/WAPerera/Prompt-pad/releases/latest',
+  coffee: 'https://ko-fi.com/arjxnp',
 } as const;
 
 /* -------------------------------------------------------------------------- */
