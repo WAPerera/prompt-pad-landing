@@ -5,16 +5,13 @@ import sitemap from '@astrojs/sitemap';
 /**
  * Deployment configuration
  *
- * This project is set up for Vercel, which serves the site from the domain
+ * This project is deployed on Vercel, which serves the site from the domain
  * root. No adapter is needed because the site is fully static.
  *
- * TODO: After the first deploy, set `site` to your production URL
- * (for example "https://your-project.vercel.app") so the canonical URL,
- * Open Graph tags, and sitemap use the correct domain.
+ * If you add a custom domain later, update `site` to that domain.
  */
 export default defineConfig({
-  // TODO: Replace with your Vercel production URL.
-  site: 'https://your-project.vercel.app',
+  site: 'https://v0-irl-event-landing-custom-3-sigma-pearl.vercel.app',
   // Vercel serves the site from the root, so no base path is needed.
   base: '/',
 
