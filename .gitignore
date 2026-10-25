@@ -1,0 +1,15 @@
+# Build output
+dist/
+# Generated types
+.astro/
+# Dependencies
+node_modules/
+# Vercel CLI project metadata
+.vercel/
+# Logs
+npm-debug.log*
+# Environment files
+.env
+.env.*
+# Editor / OS files
+.DS_Store

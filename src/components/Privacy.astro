@@ -1,0 +1,98 @@
+---
+import { site } from '../data/site';
+
+const { privacy } = site;
+---
+
+<section
+  id="privacy"
+  class="section section--tinted"
+  aria-labelledby="privacy-title"
+>
+  <div class="container privacy__inner">
+    <div class="privacy__head">
+      <h2 id="privacy-title" class="section-title">{privacy.title}</h2>
+      <p class="section-lede">{privacy.intro}</p>
+    </div>
+
+    <ul class="checklist reveal" role="list">
+      {
+        privacy.checklist.map((item) => (
+          <li class="checklist__item">
+            <span class="checklist__icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none">
+                <path
+                  d="m5 10.5 3.2 3.2L15 6.8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <p class="checklist__text">
+              <strong>{item.lead}</strong>{' '}{item.text}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .privacy__inner {
+    display: grid;
+    gap: clamp(2.25rem, 5vw, 4rem);
+  }
+
+  .privacy__head .section-lede {
+    margin-top: 1rem;
+  }
+
+  .checklist {
+    display: grid;
+    gap: 1.15rem;
+    margin: 0;
+    list-style: none;
+  }
+
+  .checklist__item {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: start;
+  }
+
+  .checklist__icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-top: 0.1rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .checklist__icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .checklist__text {
+    color: var(--text-muted);
+  }
+
+  .checklist__text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  @media (min-width: 900px) {
+    .privacy__inner {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      align-items: start;
+    }
+  }
+</style>

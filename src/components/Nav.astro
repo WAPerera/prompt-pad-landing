@@ -1,0 +1,338 @@
+---
+import { site } from '../data/site';
+
+const { nav, a11y } = site;
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href={nav.home.href}>
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 7.5 9 12l-4 4.5"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+          <path
+            d="M11.5 17H19"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"></path>
+        </svg>
+      </span>
+      <span class="brand__text">{nav.home.label}</span>
+    </a>
+
+    <button
+      class="nav-toggle"
+      type="button"
+      data-nav-toggle
+      aria-expanded="false"
+      aria-controls="primary-nav"
+      aria-label={a11y.openMenu}
+      data-label-open={a11y.openMenu}
+      data-label-close={a11y.closeMenu}
+    >
+      <span class="nav-toggle__bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <nav
+      id="primary-nav"
+      class="nav-panel"
+      data-nav-panel
+      data-open="false"
+      aria-label={nav.ariaLabel}
+    >
+      <ul class="nav-list">
+        {
+          nav.links.map((link) => (
+            <li>
+              <a class="nav-link" href={link.href}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn btn--primary nav-cta" href={nav.cta.href}>{nav.cta.label}</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Mobile menu toggle. The menu is a disclosure with aria-expanded state.
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const panel = document.querySelector<HTMLElement>('[data-nav-panel]');
+
+  if (toggle && panel) {
+    const labelOpen = toggle.dataset.labelOpen || toggle.getAttribute('aria-label') || '';
+    const labelClose = toggle.dataset.labelClose || labelOpen;
+
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? labelClose : labelOpen);
+      panel.dataset.open = String(open);
+    };
+
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+
+    // Selecting a link closes the menu.
+    panel.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest('a')) setOpen(false);
+    });
+
+    // Escape closes the menu and returns focus to the toggle.
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isOpen()) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    // A click outside the menu and its toggle closes the menu.
+    document.addEventListener('click', (event) => {
+      if (!isOpen()) return;
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        !panel.contains(target) &&
+        !toggle.contains(target)
+      ) {
+        setOpen(false);
+      }
+    });
+
+    // Reset state when the viewport reaches the desktop layout.
+    const desktop = window.matchMedia('(min-width: 768px)');
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    background: color-mix(in srgb, var(--bg) 84%, transparent);
+    border-bottom: 1px solid var(--border);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(12px);
+  }
+
+  .header__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: var(--nav-height);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+  }
+
+  .brand__mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .brand__mark svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .brand__text {
+    font-size: 1.02rem;
+  }
+
+  .nav-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border-control);
+    border-radius: 11px;
+    background: var(--bg-elevated);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .nav-toggle:hover {
+    border-color: var(--border-strong);
+  }
+
+  .nav-toggle__bars {
+    position: relative;
+    display: block;
+    width: 18px;
+    height: 14px;
+  }
+
+  .nav-toggle__bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: top 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav-toggle__bars span:nth-child(1) {
+    top: 0;
+  }
+
+  .nav-toggle__bars span:nth-child(2) {
+    top: 6px;
+  }
+
+  .nav-toggle__bars span:nth-child(3) {
+    top: 12px;
+  }
+
+  .nav-toggle[aria-expanded='true'] .nav-toggle__bars span:nth-child(1) {
+    top: 6px;
+    transform: rotate(45deg);
+  }
+
+  .nav-toggle[aria-expanded='true'] .nav-toggle__bars span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle[aria-expanded='true'] .nav-toggle__bars span:nth-child(3) {
+    top: 6px;
+    transform: rotate(-45deg);
+  }
+
+  .nav-panel {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .nav-list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    list-style: none;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 9px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    background: var(--bg-tinted);
+    color: var(--text);
+  }
+
+  .nav-cta {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Mobile: without JavaScript the links stay visible as a stacked row. */
+  @media (max-width: 767px) {
+    .header__inner {
+      flex-wrap: wrap;
+      padding-block: 0.5rem;
+    }
+
+    .nav-panel {
+      flex-basis: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+      padding-block: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-list {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.15rem;
+    }
+
+    .nav-link {
+      padding: 0.7rem 0.75rem;
+      font-size: 1rem;
+    }
+
+    .nav-cta {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-size: 0.975rem;
+    }
+
+    /* With JavaScript, the panel becomes a collapsible dropdown. */
+    :global(html.js) .header__inner {
+      flex-wrap: nowrap;
+      padding-block: 0;
+    }
+
+    :global(html.js) .nav-toggle {
+      display: inline-flex;
+    }
+
+    :global(html.js) .nav-panel {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: var(--gutter);
+      right: var(--gutter);
+      display: none;
+      flex-basis: auto;
+      margin-top: 0;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      box-shadow: var(--shadow-md);
+    }
+
+    :global(html.js) .nav-panel[data-open='true'] {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .nav-toggle {
+      display: none;
+    }
+  }
+</style>

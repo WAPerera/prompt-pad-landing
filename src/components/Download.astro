@@ -1,0 +1,100 @@
+---
+import { site } from '../data/site';
+
+const { download } = site;
+---
+
+<section id="download" class="section" aria-labelledby="download-title">
+  <div class="container">
+    <div class="download reveal">
+      <h2 id="download-title" class="download__title">{download.title}</h2>
+      <p class="download__text">{download.text}</p>
+
+      <div class="download__actions">
+        <a class="btn btn--primary btn--lg" href={download.cta.href}>
+          {download.cta.label}
+        </a>
+      </div>
+
+      <!-- TODO: Verify the system requirements for the current release. -->
+      <p class="download__note">{download.note}</p>
+
+      <p class="download__support">
+        {download.support.text}{' '}
+        <a href={download.support.link.href}>{download.support.link.label}</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .download {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(2.25rem, 6vw, 4rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+  }
+
+  /* Soft accent wash, contained inside the card. */
+  .download::before {
+    content: '';
+    position: absolute;
+    inset: -45% 10% auto 10%;
+    z-index: 0;
+    height: 120%;
+    background: radial-gradient(
+      50% 50% at 50% 0%,
+      var(--accent-glow),
+      transparent 72%
+    );
+    pointer-events: none;
+  }
+
+  .download > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .download__title {
+    font-size: clamp(1.7rem, 3.5vw, 2.35rem);
+    letter-spacing: -0.03em;
+  }
+
+  .download__text {
+    max-width: 52ch;
+    margin: 1rem auto 0;
+    color: var(--text-muted);
+  }
+
+  .download__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .download__note {
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .download__support {
+    margin-top: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .download__support a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  .download__support a:hover {
+    text-decoration-color: currentColor;
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+import { site } from '../data/site';
+
+const { footer } = site;
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <p class="footer__description">{footer.description}</p>
+
+      <nav class="footer__nav" aria-label={footer.ariaLabel}>
+        <ul class="footer__links" role="list">
+          {
+            footer.links.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer__bottom">
+      <p>{footer.bottom}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .footer__top {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .footer__description {
+    max-width: 34ch;
+    color: var(--text-muted);
+  }
+
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    list-style: none;
+  }
+
+  .footer__links a {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  .footer__links a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  @media (min-width: 720px) {
+    .footer__top {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+    }
+
+    .footer__links {
+      justify-content: flex-end;
+    }
+  }
+</style>

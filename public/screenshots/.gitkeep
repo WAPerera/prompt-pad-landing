@@ -1,0 +1,8 @@
+# This folder is the placeholder location for screenshots.
+#
+# TODO: Replace with real images, for example:
+#   public/screenshots/main-window.png
+#
+# Note: to use the optimized <Image /> component from astro:assets, place the
+# file inside src/ (e.g. src/screenshots/main-window.png) and import it in
+# Hero.astro. Files in public/ are served as-is.

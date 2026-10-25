@@ -1,0 +1,88 @@
+---
+import { site } from '../data/site';
+
+const { features } = site;
+---
+
+<section id="features" class="section" aria-labelledby="features-title">
+  <div class="container">
+    <header class="section-head section-head--center">
+      <h2 id="features-title" class="section-title">{features.title}</h2>
+    </header>
+
+    <ul class="features reveal" role="list">
+      {
+        features.items.map((feature) => (
+          <li class="feature">
+            <span class="feature__icon" aria-hidden="true">{feature.icon}</span>
+            <h3 class="feature__title">{feature.title}</h3>
+            <p class="feature__text">{feature.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .features {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0;
+    list-style: none;
+  }
+
+  .feature {
+    padding: clamp(1.25rem, 2.5vw, 1.6rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .feature:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .feature__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .feature__title {
+    margin-top: 1rem;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+
+  .feature__text {
+    margin-top: 0.45rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  @media (min-width: 640px) {
+    .features {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .features {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+</style>

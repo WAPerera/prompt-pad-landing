@@ -1,0 +1,90 @@
+---
+import { site } from '../data/site';
+
+const { howItWorks } = site;
+---
+
+<section
+  id="how-it-works"
+  class="section"
+  aria-labelledby="how-it-works-title"
+>
+  <div class="container">
+    <header class="section-head">
+      <h2 id="how-it-works-title" class="section-title">{howItWorks.title}</h2>
+    </header>
+
+    <ol class="steps reveal" role="list">
+      {
+        howItWorks.steps.map((step, index) => (
+          <li class="step">
+            <span class="step__number" aria-hidden="true">{index + 1}</span>
+            <p class="step__text">{step}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.35rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .step__number {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .step__text {
+    padding-top: 0.3rem;
+    color: var(--text-muted);
+    font-size: 0.97rem;
+  }
+
+  @media (min-width: 720px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1040px) {
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .step {
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .step__text {
+      padding-top: 0;
+    }
+  }
+</style>
