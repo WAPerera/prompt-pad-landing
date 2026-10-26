@@ -22,6 +22,10 @@ npm run preview    # preview the production build
 
 All copy and links live in `src/data/site.ts`. Components do not contain copy.
 
+The interactive prototype is built from `src/components/Prototype.astro` and
+`src/scripts/prototype.ts`. It runs entirely in memory, demonstrates the core
+workflow, and resets when the page reloads.
+
 ## Remaining placeholders
 
 Search the project for `TODO` to find what still needs a real value:

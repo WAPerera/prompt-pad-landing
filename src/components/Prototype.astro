@@ -1,0 +1,649 @@
+---
+import { site } from '../data/site';
+
+const { prototype } = site;
+
+// Initial counts, so the sidebar is not empty before the script runs.
+const folderCounts: Record<string, number> = {};
+for (const folder of prototype.folders) {
+  folderCounts[folder.id] = prototype.prompts.filter(
+    (prompt) => prompt.folder === folder.id,
+  ).length;
+}
+
+// Only the strings the client script needs. The rest of the copy is rendered
+// server-side below.
+const prototypeData = {
+  labels: {
+    copied: prototype.copied,
+    copyFailed: prototype.copyFailed,
+    untitled: prototype.untitled,
+    noText: prototype.noText,
+    noResults: prototype.noResults,
+  },
+  folders: prototype.folders,
+  prompts: prototype.prompts,
+  defaultPromptId: prototype.defaultPromptId,
+};
+---
+
+<section id="prototype" class="section" aria-labelledby="prototype-title">
+  <div class="container">
+    <header class="section-head section-head--center prototype__head">
+      <p class="prototype__eyebrow">{prototype.eyebrow}</p>
+      <h2 id="prototype-title" class="section-title">{prototype.title}</h2>
+      <p class="section-lede">{prototype.intro}</p>
+    </header>
+
+    <div class="prototype reveal" data-prototype>
+      <div class="app">
+        <div class="app__titlebar" aria-hidden="true">
+          <span class="app__brand">
+            <span class="app__mark"></span>
+            {prototype.windowTitle}
+          </span>
+          <span class="app__badge">{prototype.badge}</span>
+        </div>
+
+        <div class="app__body">
+          <aside class="app__sidebar">
+            <div class="app__sidebar-head">
+              <p class="app__sidebar-label">{prototype.foldersLabel}</p>
+              <button class="app__new" type="button" data-new-prompt>
+                {prototype.newPrompt}
+              </button>
+            </div>
+
+            <div
+              class="folder-list"
+              role="group"
+              aria-label={prototype.foldersLabel}
+            >
+              <button
+                class="folder is-active"
+                type="button"
+                data-folder="all"
+                aria-pressed="true"
+              >
+                <span>{prototype.allFolder}</span>
+                <span class="folder__count" data-count-for="all">
+                  {prototype.prompts.length}
+                </span>
+              </button>
+
+              {
+                prototype.folders.map((folder) => (
+                  <button
+                    class="folder"
+                    type="button"
+                    data-folder={folder.id}
+                    aria-pressed="false"
+                  >
+                    <span>{folder.name}</span>
+                    <span class="folder__count" data-count-for={folder.id}>
+                      {folderCounts[folder.id]}
+                    </span>
+                  </button>
+                ))
+              }
+            </div>
+
+            <button class="app__reset" type="button" data-reset>
+              {prototype.resetDemo}
+            </button>
+          </aside>
+
+          <div class="app__workspace">
+            <section class="app__list-pane" aria-label={prototype.listLabel}>
+              <div class="search">
+                <label class="sr-only" for="prototype-search">
+                  {prototype.searchLabel}
+                </label>
+                <svg
+                  class="search__icon"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="9"
+                    cy="9"
+                    r="5.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"></circle>
+                  <path
+                    d="m13.5 13.5 3 3"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"></path>
+                </svg>
+                <input
+                  id="prototype-search"
+                  type="search"
+                  placeholder={prototype.searchPlaceholder}
+                  autocomplete="off"
+                  spellcheck="false"
+                  data-search
+                />
+              </div>
+
+              <ul class="prompt-list" data-prompt-list></ul>
+            </section>
+
+            <section class="app__editor" aria-label={prototype.editorLabel}>
+              <div class="empty-editor" data-empty-editor hidden>
+                <p class="empty-editor__title">{prototype.emptyTitle}</p>
+                <p>{prototype.emptyText}</p>
+              </div>
+
+              <div class="editor-fields" data-editor-fields>
+                <label class="field-label" for="prototype-title">
+                  {prototype.titleLabel}
+                </label>
+                <input
+                  class="field-input"
+                  id="prototype-title"
+                  type="text"
+                  autocomplete="off"
+                  data-title
+                />
+
+                <label class="field-label" for="prototype-text">
+                  {prototype.textLabel}
+                </label>
+                <textarea
+                  class="field-textarea"
+                  id="prototype-text"
+                  rows="8"
+                  spellcheck="false"
+                  data-text></textarea>
+
+                <div class="editor-actions">
+                  <button
+                    class="btn btn--primary app__action"
+                    type="button"
+                    data-copy
+                    disabled
+                  >
+                    {prototype.copy}
+                  </button>
+                  <button
+                    class="btn btn--secondary app__action"
+                    type="button"
+                    data-delete
+                    disabled
+                  >
+                    {prototype.delete}
+                  </button>
+                  <span
+                    class="editor-status"
+                    role="status"
+                    aria-live="polite"
+                    data-status></span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <p class="prototype__note">{prototype.note}</p>
+      <noscript>
+        <p class="prototype__note">{prototype.noscript}</p>
+      </noscript>
+
+      <script
+        type="application/json"
+        data-prototype-data
+        is:inline
+        set:html={JSON.stringify(prototypeData)}
+      ></script>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initPrototype } from '../scripts/prototype';
+
+  initPrototype();
+</script>
+
+<style>
+  .prototype__head {
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .prototype__eyebrow {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .app {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .app__titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 44px;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+  }
+
+  .app__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .app__mark {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: var(--accent);
+    opacity: 0.9;
+  }
+
+  .app__badge {
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .app__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-tinted);
+  }
+
+  .app__sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .app__sidebar-label {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .app__new {
+    flex-shrink: 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .app__new:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .folder-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .folder {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .folder:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  .folder.is-active {
+    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .folder__count {
+    font-size: 0.7rem;
+    opacity: 0.8;
+  }
+
+  .app__reset {
+    align-self: flex-start;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    cursor: pointer;
+  }
+
+  .app__reset:hover {
+    color: var(--accent);
+  }
+
+  .app__list-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+  }
+
+  .search {
+    position: relative;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search__icon {
+    position: absolute;
+    top: 50%;
+    left: 1.3rem;
+    width: 14px;
+    height: 14px;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .search input {
+    width: 100%;
+    padding: 0.55rem 0.7rem 0.55rem 2.05rem;
+    border: 1px solid var(--border-control);
+    border-radius: 9px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+
+  .search input::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+
+  .prompt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    max-height: 300px;
+    min-height: 0;
+    margin: 0;
+    padding: 0.5rem;
+    overflow-y: auto;
+    list-style: none;
+  }
+
+  /* The rows are inserted by the client script, so they do not receive
+     Astro's scoping attribute. Use :global() for their styles. */
+  .prompt-list :global(.prompt-row) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    width: 100%;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .prompt-list :global(.prompt-row):hover {
+    background: var(--bg-tinted);
+  }
+
+  .prompt-list :global(.prompt-row.is-selected) {
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    background: var(--accent-soft);
+  }
+
+  .prompt-list :global(.prompt-row__title) {
+    color: var(--text);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  .prompt-list :global(.prompt-row__snippet) {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .prompt-list :global(.prompt-row__folder) {
+    color: var(--accent);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .prompt-list :global(.prompt-empty) {
+    padding: 1.5rem 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .app__editor {
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    padding: 1rem;
+    background: var(--bg-elevated);
+  }
+
+  .editor-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-height: 0;
+  }
+
+  .field-label {
+    margin-top: 0.35rem;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .field-label:first-child {
+    margin-top: 0;
+  }
+
+  .field-input,
+  .field-textarea {
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--border-control);
+    border-radius: 9px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+
+  .field-input {
+    font-weight: 600;
+  }
+
+  .field-textarea {
+    min-height: 150px;
+    line-height: 1.55;
+    resize: vertical;
+  }
+
+  .editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .app__action {
+    padding: 0.55rem 0.85rem;
+    border-radius: 9px;
+    font-size: 0.84rem;
+  }
+
+  .app__action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .editor-status {
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .empty-editor {
+    display: grid;
+    flex: 1;
+    place-content: center;
+    gap: 0.35rem;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .empty-editor__title {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .prototype__note {
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  @media (min-width: 900px) {
+    .app__body {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+    }
+
+    .app__sidebar {
+      padding: 1rem;
+      border-right: 1px solid var(--border);
+      border-bottom: 0;
+    }
+
+    .folder-list {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .folder {
+      width: 100%;
+      justify-content: space-between;
+      padding: 0.45rem 0.55rem;
+      border-color: transparent;
+      border-radius: 8px;
+      background: transparent;
+    }
+
+    .folder:hover {
+      border-color: var(--border);
+      background: var(--bg-elevated);
+    }
+
+    .folder.is-active {
+      border-color: var(--border);
+      background: var(--bg-elevated);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app__reset {
+      margin-top: auto;
+    }
+
+    .app__workspace {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      height: 580px;
+    }
+
+    .app__list-pane {
+      border-right: 1px solid var(--border);
+      border-bottom: 0;
+    }
+
+    .prompt-list {
+      flex: 1;
+      max-height: none;
+    }
+
+    .app__editor {
+      min-height: 0;
+      padding: 1.25rem;
+    }
+
+    .editor-fields {
+      flex: 1;
+    }
+
+    .field-textarea {
+      flex: 1;
+      min-height: 120px;
+      resize: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app__new:hover {
+      transform: none;
+    }
+  }
+</style>

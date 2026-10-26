@@ -119,6 +119,11 @@ img {
   height: auto;
 }
 
+/* Honor the `hidden` attribute even on elements with an explicit display. */
+[hidden] {
+  display: none !important;
+}
+
 button,
 input,
 textarea,
