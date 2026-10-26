@@ -11,7 +11,7 @@ import sitemap from '@astrojs/sitemap';
  * If you add a custom domain later, update `site` to that domain.
  */
 export default defineConfig({
-  site: 'https://v0-irl-event-landing-custom-3-sigma-pearl.vercel.app',
+  site: 'https://v0-irl-promptpad2026.vercel.app',
   // Vercel serves the site from the root, so no base path is needed.
   base: '/',
 
