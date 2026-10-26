@@ -30,7 +30,7 @@ export const links = {
    * The Windows installer, served from `public/download/`. Replace that file
    * (and this path) when you publish a new version.
    */
-  download: '/download/Prompt-Pad-1.1.0-x64-setup.exe',
+  download: '/download/Prompt-Pad-1.2.1-x64-setup.exe',
   coffee: 'https://ko-fi.com/arjxnp',
   linkedin: 'https://lk.linkedin.com/in/arjunpereraofficial',
   macWaitlist: 'https://tally.so/r/DqqN2Z',
