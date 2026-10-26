@@ -8,6 +8,10 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "sandbox": "astro build && astro preview --background --port 4322",
+    "sandbox:status": "astro preview status",
+    "sandbox:logs": "astro preview logs --follow",
+    "sandbox:stop": "astro preview stop",
     "check": "astro check",
     "astro": "astro"
   },

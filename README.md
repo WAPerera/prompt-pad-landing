@@ -18,6 +18,25 @@ npm run build      # static build in dist/
 npm run preview    # preview the production build
 ```
 
+## Preview sandbox
+
+Use the sandbox to check exactly what will be deployed *before* pushing. It
+builds the production output and serves it from `dist/` on **port 4322**, so it
+can run at the same time as `npm run dev` (4321) for side-by-side comparison.
+
+```bash
+npm run sandbox         # build, then start the preview server in the background
+npm run sandbox:status  # check whether it is running
+npm run sandbox:logs    # follow the server logs (Ctrl+C to detach)
+npm run sandbox:stop    # stop the background server
+```
+
+Open http://localhost:4322/ after `npm run sandbox`. Unlike the dev server,
+this serves the real built HTML, CSS, and JS — so broken imports, missing
+assets, and build-time failures show up here rather than in production. The
+sandbox leaves no tracked files behind: `dist/`, `.astro/`, and
+`node_modules/` are all git-ignored.
+
 ## Editing content
 
 All copy and links live in `src/data/site.ts`. Components do not contain copy.
