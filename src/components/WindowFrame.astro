@@ -1,17 +1,24 @@
 ---
 /**
- * A mock desktop app window. When a real screenshot exists, import it and
- * pass it as `src`; otherwise a styled placeholder is shown.
+ * The app window shown in the hero.
  *
- * Usage with an image (later):
+ * Pass a real screenshot as `src`; the screenshot includes the app's own
+ * title bar, so the synthetic chrome is skipped. Without `src`, a styled
+ * placeholder (or a slotted preview) is shown instead.
+ *
+ * Usage with an image:
  *
  *   import mainWindow from '../screenshots/main-window.png';
- *   <WindowFrame title="..." alt="..." src={mainWindow} />
+ *   <WindowFrame title="..." alt="..." placeholderLabel="..." src={mainWindow} />
  *
- * TODO: For an optimized screenshot, place the file in `src/` (for example
- * `src/screenshots/main-window.png`), import it in Hero.astro, and pass it
- * here as `src`. Files in `public/` are served as-is and cannot be processed
- * by <Image />.
+ * Usage with a custom preview:
+ *
+ *   <WindowFrame title="..." alt="..." placeholderLabel="...">
+ *     ...preview markup...
+ *   </WindowFrame>
+ *
+ * Screenshots must live in `src/` so <Image /> can optimize them. Files in
+ * `public/` are served as-is and cannot be processed.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -30,44 +37,52 @@ interface Props {
 }
 
 const { title, alt, placeholderLabel, src, loading = 'lazy' } = Astro.props;
+const hasPreview = Astro.slots.has('default');
 ---
 
-<div class="window">
-  <div class="titlebar" aria-hidden="true">
-    <span class="titlebar__brand">
-      <span class="titlebar__mark"></span>
-      <span class="titlebar__title">{title}</span>
-    </span>
-    <span class="titlebar__controls">
-      <span class="titlebar__control">
-        <svg viewBox="0 0 10 10" fill="none">
-          <path d="M2 8h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
-        </svg>
-      </span>
-      <span class="titlebar__control">
-        <svg viewBox="0 0 10 10" fill="none">
-          <rect x="2.5" y="2.5" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.2"></rect>
-        </svg>
-      </span>
-      <span class="titlebar__control">
-        <svg viewBox="0 0 10 10" fill="none">
-          <path d="m2.5 2.5 5 5m0-5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
-        </svg>
-      </span>
-    </span>
-  </div>
+<div class:list={['window', { 'window--image': Boolean(src) }]}>
+  {
+    !src && (
+      <div class="titlebar" aria-hidden="true">
+        <span class="titlebar__brand">
+          <span class="titlebar__mark"></span>
+          <span class="titlebar__title">{title}</span>
+        </span>
+        <span class="titlebar__controls">
+          <span class="titlebar__control">
+            <svg viewBox="0 0 10 10" fill="none">
+              <path d="M2 8h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </span>
+          <span class="titlebar__control">
+            <svg viewBox="0 0 10 10" fill="none">
+              <rect x="2.5" y="2.5" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.2"></rect>
+            </svg>
+          </span>
+          <span class="titlebar__control">
+            <svg viewBox="0 0 10 10" fill="none">
+              <path d="m2.5 2.5 5 5m0-5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            </svg>
+          </span>
+        </span>
+      </div>
+    )
+  }
 
-  <!-- REPLACE: screenshot of main window -->
   {
     src ? (
       <div class="screen screen--image">
         <Image
           src={src}
           alt={alt}
-          widths={[640, 960, 1280]}
-          sizes="(min-width: 1024px) 620px, 92vw"
+          widths={[558, 840, 1116]}
+          sizes="(min-width: 960px) 558px, 92vw"
           loading={loading}
         />
+      </div>
+    ) : hasPreview ? (
+      <div class="screen screen--mock">
+        <slot />
       </div>
     ) : (
       <div class="screen">
@@ -180,10 +195,30 @@ const { title, alt, placeholderLabel, src, loading = 'lazy' } = Astro.props;
     );
   }
 
+  /* A real screenshot already includes the app's own title bar, so the
+     synthetic chrome is only drawn for the placeholder and preview states. */
+  .window--image {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 24px;
+  }
+
   .screen--image {
     display: block;
     padding: 0;
     aspect-ratio: auto;
+    background: none;
+  }
+
+  /* A live preview (such as the hero mock) fills the frame and is scaled with
+     container query units by the slotted component. */
+  .screen--mock {
+    position: relative;
+    display: block;
+    padding: 0;
+    container-type: inline-size;
+    background: var(--bg-inset);
   }
 
   .screen--image :global(img) {

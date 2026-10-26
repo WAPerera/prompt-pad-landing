@@ -1,6 +1,7 @@
 ---
 import { site } from '../data/site';
 import WindowFrame from './WindowFrame.astro';
+import mainWindow from '../screenshots/main-window.png';
 
 const { hero } = site;
 ---
@@ -12,7 +13,7 @@ const { hero } = site;
       <p class="hero__lede">{hero.subheadline}</p>
 
       <div class="hero__actions">
-        <a class="btn btn--primary btn--lg" href={hero.primaryCta.href}>
+        <a class="btn btn--outline-accent btn--lg" href={hero.primaryCta.href}>
           <svg class="btn__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M12 3v12m0 0 4.5-4.5M12 15 7.5 10.5M4 20h16"
@@ -39,12 +40,15 @@ const { hero } = site;
     </div>
 
     <div class="hero__visual">
-      <WindowFrame
-        title={hero.screenshot.windowTitle}
-        alt={hero.screenshot.alt}
-        placeholderLabel={hero.screenshot.placeholderLabel}
-        loading="eager"
-      />
+      <div class="hero__frame">
+        <WindowFrame
+          title={hero.screenshot.windowTitle}
+          alt={hero.screenshot.alt}
+          placeholderLabel={hero.screenshot.placeholderLabel}
+          src={mainWindow}
+          loading="eager"
+        />
+      </div>
     </div>
   </div>
 </section>
@@ -52,19 +56,19 @@ const { hero } = site;
 <style>
   .hero {
     position: relative;
+    isolation: isolate;
     overflow: clip;
-    padding-block: clamp(2.75rem, 6vw, 5rem) clamp(4rem, 8vw, 7rem);
+    padding-block: clamp(3rem, 7vw, 5.25rem) clamp(4rem, 9vw, 7.5rem);
   }
 
-  /* Soft accent glow behind the headline and window mock. */
+  /* Accent glow, fading out from the top of the hero. */
   .hero::before {
     content: '';
     position: absolute;
-    inset: 0 0 auto 0;
-    height: 90%;
-    z-index: 0;
+    inset: 0;
+    z-index: -1;
     background: radial-gradient(
-      65% 60% at 50% 0%,
+      60% 65% at 50% 0%,
       var(--accent-glow),
       transparent 72%
     );
@@ -73,10 +77,9 @@ const { hero } = site;
 
   .hero__inner {
     position: relative;
-    z-index: 1;
     display: grid;
     align-items: center;
-    gap: clamp(2.5rem, 6vw, 4.5rem);
+    gap: clamp(2.75rem, 6vw, 4.5rem);
   }
 
   .hero__copy {
@@ -84,16 +87,19 @@ const { hero } = site;
   }
 
   .hero__title {
-    max-width: 15ch;
-    font-size: clamp(2.3rem, 6.2vw, 4rem);
-    letter-spacing: -0.035em;
+    max-width: 470px;
+    font-size: clamp(2.6rem, 5.7vw, 4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 
   .hero__lede {
-    max-width: 52ch;
+    max-width: 470px;
     margin-top: 1.25rem;
     color: var(--text-muted);
-    font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+    font-size: clamp(1.1rem, 1.6vw, 1.2rem);
+    line-height: 1.6;
   }
 
   .hero__actions {
@@ -107,18 +113,25 @@ const { hero } = site;
     margin-top: 1.5rem;
     color: var(--text-muted);
     font-size: 0.9rem;
+    line-height: 1.6;
   }
 
   .hero__visual {
+    position: relative;
     min-width: 0;
-    max-width: 640px;
-    margin-inline: auto;
     width: 100%;
+    max-width: 558px;
+    margin-inline: auto;
+  }
+
+  .hero__frame {
+    position: relative;
   }
 
   @media (min-width: 960px) {
     .hero__inner {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.06fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+      gap: clamp(2.5rem, 4vw, 3.75rem);
     }
 
     .hero__visual {

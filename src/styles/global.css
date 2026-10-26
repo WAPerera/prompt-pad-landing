@@ -23,12 +23,15 @@
   /* 3:1 against the page background for interactive control boundaries. */
   --border-control: #8b94a3;
 
-  /* Calm indigo accent */
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-contrast: #ffffff;
-  --accent-soft: rgba(79, 70, 229, 0.1);
-  --accent-glow: rgba(79, 70, 229, 0.16);
+  /* Teal accent. `--accent` is the brand color; `--accent-text` is a darker
+     variant that reaches 4.5:1 on light backgrounds, and `--accent-contrast`
+     is the ink used on top of accent-filled surfaces. */
+  --accent: #38b0a0;
+  --accent-hover: #2f9c8f;
+  --accent-contrast: #04231f;
+  --accent-text: #1b7a6f;
+  --accent-soft: rgba(56, 176, 160, 0.12);
+  --accent-glow: rgba(56, 176, 160, 0.2);
 
   /* Shapes & depth */
   --radius-sm: 10px;
@@ -45,8 +48,8 @@
   --section-space: clamp(4rem, 9vw, 7rem);
 
   /* Type */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, "Noto Sans", sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 /* Dark mode follows the operating system preference. */
@@ -64,11 +67,12 @@
     --border-strong: #3a4252;
     --border-control: #707b8d;
 
-    --accent: #a5b4fc;
-    --accent-hover: #c7d2fe;
-    --accent-contrast: #101326;
-    --accent-soft: rgba(129, 140, 248, 0.16);
-    --accent-glow: rgba(129, 140, 248, 0.2);
+    --accent: #38b0a0;
+    --accent-hover: #4cc7b6;
+    --accent-contrast: #04231f;
+    --accent-text: #6ad9ca;
+    --accent-soft: rgba(56, 176, 160, 0.16);
+    --accent-glow: rgba(56, 176, 160, 0.24);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.4);
@@ -180,7 +184,7 @@ p {
    -------------------------------------------------------------------------- */
 
 :focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--accent-text);
   outline-offset: 3px;
 }
 
@@ -289,7 +293,8 @@ p {
 .btn--primary {
   background: var(--accent);
   color: var(--accent-contrast);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08),
+    0 10px 28px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 .btn--primary:hover {
@@ -304,8 +309,21 @@ p {
 }
 
 .btn--secondary:hover {
+  border-color: var(--accent-text);
+  color: var(--accent-text);
+}
+
+/* Download button: dark plate with a teal keyline and teal label. */
+.btn--outline-accent {
+  background: #0d0d0d;
   border-color: var(--accent);
   color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn--outline-accent:hover {
+  background: color-mix(in srgb, var(--accent) 14%, #0d0d0d);
+  border-color: var(--accent);
 }
 
 .btn--lg {

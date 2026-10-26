@@ -1,8 +1,9 @@
 /**
  * Interactive Prompt Pad prototype.
  *
- * This is deliberately small and dependency-free. State lives in memory only:
- * reloading the page restores the sample prompts.
+ * A dependency-free port of the real Prompt Pad app (Tauri + React), so the
+ * landing page shows the actual interface and behaviour. State lives in memory
+ * only: reloading the page restores the sample prompts.
  */
 
 interface PrototypeFolder {
@@ -12,22 +13,24 @@ interface PrototypeFolder {
 
 interface PrototypePrompt {
   id: string;
-  folder: string;
+  folderId: string | null;
   title: string;
-  text: string;
+  body: string;
+}
+
+interface PrototypeLabels {
+  untitled: string;
+  untitledFolder: string;
+  addPromptToFolder: string;
+  copy: string;
+  copied: string;
 }
 
 interface PrototypeConfig {
-  labels: {
-    copied: string;
-    copyFailed: string;
-    untitled: string;
-    noText: string;
-    noResults: string;
-  };
+  labels: PrototypeLabels;
   folders: PrototypeFolder[];
   prompts: PrototypePrompt[];
-  defaultPromptId: string;
+  defaultPromptId: string | null;
 }
 
 const HTML_ESCAPES: Record<string, string> = {
@@ -38,13 +41,9 @@ const HTML_ESCAPES: Record<string, string> = {
   "'": '&#39;',
 };
 
-/** Escape user-edited text before inserting it into the list markup. */
+/** Escape user-edited text before inserting it into generated markup. */
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => HTML_ESCAPES[character] ?? character);
-}
-
-function clonePrompts(prompts: PrototypePrompt[]): PrototypePrompt[] {
-  return prompts.map((prompt) => ({ ...prompt }));
 }
 
 /** Clipboard API with a fallback for browsers or contexts that block it. */
@@ -82,308 +81,448 @@ async function copyText(text: string): Promise<boolean> {
   return copied;
 }
 
+/** `hidden` works via attribute only on SVG elements, so set it uniformly. */
+function setHidden(element: Element, hidden: boolean): void {
+  if (hidden) element.setAttribute('hidden', '');
+  else element.removeAttribute('hidden');
+}
+
+let idCounter = 0;
+
+function createId(): string {
+  idCounter += 1;
+  return `demo-${Date.now().toString(36)}-${idCounter}`;
+}
+
+const ICON_CHEVRON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>`;
+const ICON_PLUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>`;
+
 export function initPrototype(): void {
   const root = document.querySelector<HTMLElement>('[data-prototype]');
   if (!root) return;
 
   const dataElement = root.querySelector<HTMLScriptElement>('[data-prototype-data]');
-  const listElement = root.querySelector<HTMLUListElement>('[data-prompt-list]');
+  if (!dataElement?.textContent) return;
+
+  const config = JSON.parse(dataElement.textContent) as PrototypeConfig;
+
+  const quickRows = root.querySelector<HTMLElement>('[data-quick-rows]');
+  const folderRows = root.querySelector<HTMLElement>('[data-folder-rows]');
   const searchInput = root.querySelector<HTMLInputElement>('[data-search]');
+  const addPromptButton = root.querySelector<HTMLButtonElement>('[data-add-prompt]');
+  const addFolderButton = root.querySelector<HTMLButtonElement>('[data-add-folder]');
+  const createPromptButton = root.querySelector<HTMLButtonElement>('[data-create-prompt]');
+  const createFolderButton = root.querySelector<HTMLButtonElement>('[data-create-folder]');
+  const folderCreate = root.querySelector<HTMLElement>('[data-folder-create]');
+  const newFolderInput = root.querySelector<HTMLInputElement>('[data-new-folder]');
+  const emptyView = root.querySelector<HTMLElement>('[data-view-empty]');
+  const detailView = root.querySelector<HTMLElement>('[data-view-detail]');
+  const newView = root.querySelector<HTMLElement>('[data-view-new]');
   const titleInput = root.querySelector<HTMLInputElement>('[data-title]');
-  const textInput = root.querySelector<HTMLTextAreaElement>('[data-text]');
-  const copyButton = root.querySelector<HTMLButtonElement>('[data-copy]');
+  const bodyInput = root.querySelector<HTMLTextAreaElement>('[data-body]');
   const deleteButton = root.querySelector<HTMLButtonElement>('[data-delete]');
-  const newButton = root.querySelector<HTMLButtonElement>('[data-new-prompt]');
-  const resetButton = root.querySelector<HTMLButtonElement>('[data-reset]');
-  const statusElement = root.querySelector<HTMLElement>('[data-status]');
-  const fieldsElement = root.querySelector<HTMLElement>('[data-editor-fields]');
-  const emptyElement = root.querySelector<HTMLElement>('[data-empty-editor]');
-  const folderButtons = root.querySelectorAll<HTMLButtonElement>('[data-folder]');
-  const countElements = root.querySelectorAll<HTMLElement>('[data-count-for]');
+  const copyButton = root.querySelector<HTMLButtonElement>('[data-copy]');
+  const copyIcon = root.querySelector<HTMLElement>('[data-copy-icon]');
+  const checkIcon = root.querySelector<HTMLElement>('[data-check-icon]');
+  const copyLabel = root.querySelector<HTMLElement>('[data-copy-label]');
+  const newTitleInput = root.querySelector<HTMLInputElement>('[data-new-title]');
+  const newBodyInput = root.querySelector<HTMLTextAreaElement>('[data-new-body]');
+  const saveButton = root.querySelector<HTMLButtonElement>('[data-save]');
 
   if (
-    !dataElement?.textContent ||
-    !listElement ||
+    !quickRows ||
+    !folderRows ||
     !searchInput ||
+    !addPromptButton ||
+    !addFolderButton ||
+    !createPromptButton ||
+    !createFolderButton ||
+    !folderCreate ||
+    !newFolderInput ||
+    !emptyView ||
+    !detailView ||
+    !newView ||
     !titleInput ||
-    !textInput ||
-    !copyButton ||
+    !bodyInput ||
     !deleteButton ||
-    !newButton ||
-    !resetButton ||
-    !statusElement ||
-    !fieldsElement ||
-    !emptyElement
+    !copyButton ||
+    !copyIcon ||
+    !checkIcon ||
+    !copyLabel ||
+    !newTitleInput ||
+    !newBodyInput ||
+    !saveButton
   ) {
     return;
   }
 
-  const config = JSON.parse(dataElement.textContent) as PrototypeConfig;
-  const initialPrompts = clonePrompts(config.prompts);
+  let folders: PrototypeFolder[] = config.folders.map((folder) => ({ ...folder }));
+  let prompts: PrototypePrompt[] = config.prompts.map((prompt) => ({ ...prompt }));
 
-  let prompts = clonePrompts(initialPrompts);
-  let activeFolder = 'all';
   let query = '';
-  let selectedId: string | null = config.defaultPromptId;
-  let statusTimer: number | undefined;
-
-  if (!prompts.some((prompt) => prompt.id === selectedId)) {
-    selectedId = prompts[0]?.id ?? null;
-  }
+  let expandedIds: string[] = [];
+  let selectedId: string | null = prompts.some(
+    (prompt) => prompt.id === config.defaultPromptId,
+  )
+    ? config.defaultPromptId
+    : null;
+  let draft: { folderId: string | null } | null = null;
+  let isCreatingFolder = false;
+  let newFolderName = '';
+  let copiedTimer: number | undefined;
+  /** Which prompt the detail view currently shows, so re-renders keep the caret. */
+  let renderedPromptId: string | null = null;
 
   const getSelected = (): PrototypePrompt | null =>
     prompts.find((prompt) => prompt.id === selectedId) ?? null;
 
-  const getFolderName = (folderId: string): string =>
-    config.folders.find((folder) => folder.id === folderId)?.name ?? folderId;
-
-  const getVisiblePrompts = (): PrototypePrompt[] => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    return prompts.filter((prompt) => {
-      const inFolder = activeFolder === 'all' || prompt.folder === activeFolder;
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        `${prompt.title} ${prompt.text}`.toLowerCase().includes(normalizedQuery);
-      return inFolder && matchesQuery;
-    });
+  const matchesQuery = (prompt: PrototypePrompt): boolean => {
+    const normalized = query.trim().toLowerCase();
+    return normalized.length === 0 || prompt.title.toLowerCase().includes(normalized);
   };
 
-  const getSnippet = (text: string): string => {
-    const clean = text.replace(/\s+/g, ' ').trim();
-    if (!clean) return config.labels.noText;
-    return clean.length > 72 ? `${clean.slice(0, 72).trimEnd()}…` : clean;
+  const getQuickPrompts = (): PrototypePrompt[] =>
+    prompts.filter((prompt) => prompt.folderId === null && matchesQuery(prompt));
+
+  const getFolderEntries = () => {
+    const normalized = query.trim().toLowerCase();
+
+    return folders
+      .map((folder) => {
+        const folderPrompts = prompts.filter(
+          (prompt) => prompt.folderId === folder.id && matchesQuery(prompt),
+        );
+
+        return {
+          folder,
+          prompts: folderPrompts,
+          // While searching, open any folder that still has matching prompts.
+          expanded:
+            normalized.length > 0
+              ? folderPrompts.length > 0
+              : expandedIds.includes(folder.id),
+        };
+      })
+      .filter(
+        (entry) =>
+          normalized.length === 0 ||
+          entry.folder.name.toLowerCase().includes(normalized) ||
+          entry.prompts.length > 0,
+      );
   };
 
-  const renderFolders = (): void => {
-    for (const button of folderButtons) {
-      const folderId = button.dataset.folder ?? 'all';
-      const isActive = folderId === activeFolder;
-      button.classList.toggle('is-active', isActive);
-      button.setAttribute('aria-pressed', String(isActive));
-    }
-
-    for (const count of countElements) {
-      const folderId = count.dataset.countFor ?? 'all';
-      const total =
-        folderId === 'all'
-          ? prompts.length
-          : prompts.filter((prompt) => prompt.folder === folderId).length;
-      count.textContent = String(total);
-    }
+  const expandFolder = (folderId: string): void => {
+    if (!expandedIds.includes(folderId)) expandedIds = [...expandedIds, folderId];
   };
 
-  const renderList = (): void => {
-    const visible = getVisiblePrompts();
+  const rowMarkup = (prompt: PrototypePrompt, nested: boolean): string => {
+    const isSelected = prompt.id === selectedId;
+    const classes = ['app__row', nested ? 'app__row--nested' : '', isSelected ? 'is-selected' : '']
+      .filter(Boolean)
+      .join(' ');
+    const title = prompt.title || config.labels.untitled;
 
-    if (visible.length === 0) {
-      listElement.innerHTML = `<li class="prompt-empty">${escapeHtml(
-        config.labels.noResults,
-      )}</li>`;
-      return;
-    }
+    return `<button type="button" class="${classes}" data-select="${escapeHtml(
+      prompt.id,
+    )}"${isSelected ? ' aria-current="true"' : ''}><span>${escapeHtml(title)}</span></button>`;
+  };
 
-    listElement.innerHTML = visible
-      .map((prompt) => {
-        const isSelected = prompt.id === selectedId;
-        return `<li>
-          <button type="button" class="prompt-row${isSelected ? ' is-selected' : ''}" data-prompt-id="${escapeHtml(
-            prompt.id,
-          )}"${isSelected ? ' aria-current="true"' : ''}>
-            <span class="prompt-row__title">${escapeHtml(
-              prompt.title || config.labels.untitled,
-            )}</span>
-            <span class="prompt-row__snippet">${escapeHtml(getSnippet(prompt.text))}</span>
-            <span class="prompt-row__folder">${escapeHtml(
-              getFolderName(prompt.folder),
-            )}</span>
-          </button>
-        </li>`;
+  const setCopied = (value: boolean): void => {
+    setHidden(copyIcon, value);
+    setHidden(checkIcon, !value);
+    copyLabel.textContent = value ? config.labels.copied : config.labels.copy;
+  };
+
+  const renderSidebar = (): void => {
+    quickRows.innerHTML = getQuickPrompts()
+      .map((prompt) => rowMarkup(prompt, false))
+      .join('');
+
+    folderRows.innerHTML = getFolderEntries()
+      .map((entry) => {
+        const label = config.labels.addPromptToFolder.replace(
+          '{folder}',
+          entry.folder.name,
+        );
+
+        return `<div class="app__folder">
+          <button type="button" class="app__folder-toggle" data-folder="${escapeHtml(
+            entry.folder.id,
+          )}" aria-expanded="${entry.expanded}">${ICON_CHEVRON}<span>${escapeHtml(
+            entry.folder.name,
+          )}</span></button>
+          <button type="button" class="app__folder-add" data-add-to-folder="${escapeHtml(
+            entry.folder.id,
+          )}" aria-label="${escapeHtml(label)}">${ICON_PLUS}</button>
+        </div>${
+          entry.expanded
+            ? `<div class="app__rows">${entry.prompts
+                .map((prompt) => rowMarkup(prompt, true))
+                .join('')}</div>`
+            : ''
+        }`;
       })
       .join('');
   };
 
-  const renderEditor = (): void => {
+  const renderView = (): void => {
     const selected = getSelected();
-    const hasPrompt = selected !== null;
+    const showNew = draft !== null;
+    const showDetail = !showNew && selected !== null;
 
-    fieldsElement.hidden = !hasPrompt;
-    emptyElement.hidden = hasPrompt;
+    setHidden(folderCreate, !isCreatingFolder);
+    setHidden(newView, !showNew);
+    setHidden(detailView, !showDetail);
+    setHidden(emptyView, showNew || showDetail);
 
-    if (!selected) {
-      copyButton.disabled = true;
-      deleteButton.disabled = true;
-      return;
-    }
-
-    titleInput.value = selected.title;
-    textInput.value = selected.text;
-    copyButton.disabled = selected.text.trim().length === 0;
-    deleteButton.disabled = false;
-  };
-
-  const renderAll = (): void => {
-    renderFolders();
-    renderList();
-    renderEditor();
-  };
-
-  const showStatus = (message: string): void => {
-    statusElement.textContent = message;
-
-    if (statusTimer !== undefined) window.clearTimeout(statusTimer);
-    statusTimer = window.setTimeout(() => {
-      statusElement.textContent = '';
-    }, 2200);
-  };
-
-  const keepSelectionVisible = (): void => {
-    if (prompts.length === 0) {
-      selectedId = null;
-      return;
-    }
-
-    const visible = getVisiblePrompts();
-    if (visible.length === 0) return;
-
-    if (!selectedId || !visible.some((prompt) => prompt.id === selectedId)) {
-      selectedId = visible[0]?.id ?? null;
-    }
-  };
-
-  for (const button of folderButtons) {
-    button.addEventListener('click', () => {
-      activeFolder = button.dataset.folder ?? 'all';
-
-      if (query) {
-        query = '';
-        searchInput.value = '';
+    if (showDetail && selected) {
+      // Only refill when the open prompt changes, so typing keeps its caret.
+      if (renderedPromptId !== selected.id) {
+        titleInput.value = selected.title;
+        bodyInput.value = selected.body;
+        renderedPromptId = selected.id;
+        setCopied(false);
       }
+      return;
+    }
 
-      keepSelectionVisible();
-      renderAll();
-    });
-  }
+    renderedPromptId = null;
+  };
+
+  const render = (): void => {
+    renderSidebar();
+    renderView();
+  };
+
+  const resetDraft = (): void => {
+    draft = null;
+    isCreatingFolder = false;
+    newFolderName = '';
+    newFolderInput.value = '';
+  };
+
+  const startPrompt = (folderId: string | null): void => {
+    resetDraft();
+    draft = { folderId };
+    selectedId = null;
+    newTitleInput.value = '';
+    newBodyInput.value = '';
+    saveButton.disabled = true;
+    if (folderId) expandFolder(folderId);
+    render();
+    newTitleInput.focus();
+  };
+
+  const startFolder = (): void => {
+    resetDraft();
+    draft = { folderId: null };
+    selectedId = null;
+    isCreatingFolder = true;
+    render();
+    newFolderInput.focus();
+  };
+
+  const commitFolder = (): void => {
+    const name = newFolderName.trim();
+    if (!name) return;
+
+    const folder: PrototypeFolder = { id: createId(), name };
+    folders = [...folders, folder];
+    expandFolder(folder.id);
+    isCreatingFolder = false;
+    draft = { folderId: folder.id };
+    newFolderName = '';
+    render();
+    newTitleInput.focus();
+  };
+
+  const cancelFolder = (): void => {
+    resetDraft();
+    selectedId = null;
+    render();
+  };
+
+  const selectPrompt = (promptId: string): void => {
+    resetDraft();
+    selectedId = promptId;
+
+    const prompt = prompts.find((item) => item.id === promptId);
+    if (prompt?.folderId) expandFolder(prompt.folderId);
+
+    render();
+  };
+
+  const selectFolder = (folderId: string): void => {
+    if (expandedIds.includes(folderId)) {
+      expandedIds = expandedIds.filter((id) => id !== folderId);
+      render();
+      return;
+    }
+
+    expandFolder(folderId);
+
+    // Don't yank the user out of an unsaved draft.
+    if (draft) {
+      render();
+      return;
+    }
+
+    const openPromptIsInFolder = prompts.some(
+      (prompt) => prompt.id === selectedId && prompt.folderId === folderId,
+    );
+    if (openPromptIsInFolder) {
+      render();
+      return;
+    }
+
+    const firstPrompt = prompts.find((prompt) => prompt.folderId === folderId);
+    selectedId = firstPrompt ? firstPrompt.id : null;
+    render();
+  };
+
+  const savePrompt = (): void => {
+    if (!draft) return;
+
+    let nextFolders = folders;
+    let folderId = draft.folderId;
+
+    // Saving the prompt while naming a folder creates that folder first.
+    if (isCreatingFolder) {
+      const folder: PrototypeFolder = {
+        id: createId(),
+        name: newFolderName.trim() || config.labels.untitledFolder,
+      };
+      nextFolders = [...folders, folder];
+      folderId = folder.id;
+    }
+
+    const prompt: PrototypePrompt = {
+      id: createId(),
+      folderId,
+      title: newTitleInput.value.trim(),
+      body: newBodyInput.value,
+    };
+
+    folders = nextFolders;
+    prompts = [...prompts, prompt];
+    isCreatingFolder = false;
+    newFolderName = '';
+    draft = null;
+    selectedId = prompt.id;
+    if (folderId) expandFolder(folderId);
+
+    render();
+  };
+
+  const deletePrompt = (): void => {
+    const selected = getSelected();
+    if (!selected) return;
+
+    prompts = prompts.filter((prompt) => prompt.id !== selected.id);
+    selectedId = null;
+    render();
+    addPromptButton.focus();
+  };
+
+  const handleCopy = async (): Promise<void> => {
+    const selected = getSelected();
+    if (!selected || !selected.body.trim()) return;
+
+    const success = await copyText(selected.body);
+    if (!success) {
+      // Make the manual fallback easy: focus and select the prompt text.
+      bodyInput.focus();
+      bodyInput.select();
+      return;
+    }
+
+    setCopied(true);
+    if (copiedTimer !== undefined) window.clearTimeout(copiedTimer);
+    copiedTimer = window.setTimeout(() => setCopied(false), 1600);
+  };
+
+  // --- Wiring -------------------------------------------------------------
 
   searchInput.addEventListener('input', () => {
     query = searchInput.value;
-
-    // Search across the whole library, like the app does.
-    if (query.trim()) activeFolder = 'all';
-
-    keepSelectionVisible();
-    renderAll();
+    render();
   });
 
-  listElement.addEventListener('click', (event) => {
+  root.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    const row = target.closest('[data-prompt-id]');
-    if (!(row instanceof HTMLButtonElement) || !listElement.contains(row)) return;
+    const row = target.closest('[data-select]');
+    if (row instanceof HTMLElement && row.dataset.select) {
+      selectPrompt(row.dataset.select);
+      return;
+    }
 
-    const id = row.dataset.promptId;
-    if (!id) return;
+    const addToFolder = target.closest('[data-add-to-folder]');
+    if (
+      addToFolder instanceof HTMLElement &&
+      addToFolder.dataset.addToFolder
+    ) {
+      startPrompt(addToFolder.dataset.addToFolder);
+      return;
+    }
 
-    selectedId = id;
-    statusElement.textContent = '';
-    renderList();
-    renderEditor();
+    const folder = target.closest('[data-folder]');
+    if (folder instanceof HTMLElement && folder.dataset.folder) {
+      selectFolder(folder.dataset.folder);
+    }
   });
+
+  newFolderInput.addEventListener('input', () => {
+    newFolderName = newFolderInput.value;
+  });
+
+  newFolderInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      commitFolder();
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelFolder();
+    }
+  });
+
+  addPromptButton.addEventListener('click', () => startPrompt(null));
+  addFolderButton.addEventListener('click', startFolder);
+  createPromptButton.addEventListener('click', () => startPrompt(null));
+  createFolderButton.addEventListener('click', startFolder);
 
   titleInput.addEventListener('input', () => {
     const selected = getSelected();
     if (!selected) return;
 
     selected.title = titleInput.value;
-    renderList();
+    renderSidebar();
   });
 
-  textInput.addEventListener('input', () => {
+  bodyInput.addEventListener('input', () => {
     const selected = getSelected();
     if (!selected) return;
 
-    selected.text = textInput.value;
-    copyButton.disabled = selected.text.trim().length === 0;
-    renderList();
+    selected.body = bodyInput.value;
   });
 
-  newButton.addEventListener('click', () => {
-    const folder =
-      activeFolder === 'all' ? config.folders[0]?.id ?? 'quick' : activeFolder;
-    const prompt: PrototypePrompt = {
-      id: `demo-${Date.now()}`,
-      folder,
-      title: '',
-      text: '',
-    };
-
-    prompts = [prompt, ...prompts];
-    activeFolder = 'all';
-    query = '';
-    searchInput.value = '';
-    selectedId = prompt.id;
-    statusElement.textContent = '';
-
-    renderAll();
-    titleInput.focus();
-    titleInput.select();
+  newTitleInput.addEventListener('input', () => {
+    saveButton.disabled = newTitleInput.value.trim().length === 0;
   });
 
-  deleteButton.addEventListener('click', () => {
-    const selected = getSelected();
-    if (!selected) return;
-
-    prompts = prompts.filter((prompt) => prompt.id !== selected.id);
-
-    if (prompts.length === 0) {
-      selectedId = null;
-      renderAll();
-      newButton.focus();
-      return;
-    }
-
-    const visible = getVisiblePrompts();
-
-    if (visible.length === 0) {
-      activeFolder = 'all';
-      query = '';
-      searchInput.value = '';
-      selectedId = prompts[0]?.id ?? null;
-    } else {
-      selectedId = visible[0]?.id ?? null;
-    }
-
-    renderAll();
+  newView.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    resetDraft();
+    render();
   });
 
-  copyButton.addEventListener('click', async () => {
-    const selected = getSelected();
-    if (!selected || !selected.text.trim()) return;
+  saveButton.addEventListener('click', savePrompt);
+  deleteButton.addEventListener('click', deletePrompt);
+  copyButton.addEventListener('click', () => void handleCopy());
 
-    const copied = await copyText(selected.text);
-
-    if (!copied) {
-      // Make the manual fallback easy: focus and select the prompt text.
-      textInput.focus();
-      textInput.select();
-    }
-
-    showStatus(copied ? config.labels.copied : config.labels.copyFailed);
-  });
-
-  resetButton.addEventListener('click', () => {
-    prompts = clonePrompts(initialPrompts);
-    activeFolder = 'all';
-    query = '';
-    searchInput.value = '';
-    selectedId = prompts.some((prompt) => prompt.id === config.defaultPromptId)
-      ? config.defaultPromptId
-      : prompts[0]?.id ?? null;
-    statusElement.textContent = '';
-
-    renderAll();
-  });
-
-  renderAll();
+  setCopied(false);
+  render();
 }

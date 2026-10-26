@@ -1,25 +1,23 @@
 ---
-import { site } from '../data/site';
+/**
+ * Interactive prototype of the Prompt Pad desktop app.
+ *
+ * The markup and styles mirror the real app (Tauri + React + Tailwind) so this
+ * section shows the actual interface, not an approximation. Behaviour lives in
+ * `src/scripts/prototype.ts` and runs entirely in memory.
+ */
+import { site, links } from '../data/site';
 
 const { prototype } = site;
 
-// Initial counts, so the sidebar is not empty before the script runs.
-const folderCounts: Record<string, number> = {};
-for (const folder of prototype.folders) {
-  folderCounts[folder.id] = prototype.prompts.filter(
-    (prompt) => prompt.folder === folder.id,
-  ).length;
-}
-
-// Only the strings the client script needs. The rest of the copy is rendered
-// server-side below.
+// Only the strings the client script needs; the rest render server-side.
 const prototypeData = {
   labels: {
-    copied: prototype.copied,
-    copyFailed: prototype.copyFailed,
-    untitled: prototype.untitled,
-    noText: prototype.noText,
-    noResults: prototype.noResults,
+    untitled: prototype.labels.untitled,
+    untitledFolder: prototype.labels.untitledFolder,
+    addPromptToFolder: prototype.labels.addPromptToFolder,
+    copy: prototype.labels.copy,
+    copied: prototype.labels.copied,
   },
   folders: prototype.folders,
   prompts: prototype.prompts,
@@ -36,153 +34,326 @@ const prototypeData = {
     </header>
 
     <div class="prototype reveal" data-prototype>
-      <div class="app">
-        <div class="app__titlebar" aria-hidden="true">
-          <span class="app__brand">
-            <span class="app__mark"></span>
-            {prototype.windowTitle}
-          </span>
-          <span class="app__badge">{prototype.badge}</span>
-        </div>
-
-        <div class="app__body">
-          <aside class="app__sidebar">
-            <div class="app__sidebar-head">
-              <p class="app__sidebar-label">{prototype.foldersLabel}</p>
-              <button class="app__new" type="button" data-new-prompt>
-                {prototype.newPrompt}
-              </button>
-            </div>
-
-            <div
-              class="folder-list"
-              role="group"
-              aria-label={prototype.foldersLabel}
-            >
-              <button
-                class="folder is-active"
-                type="button"
-                data-folder="all"
-                aria-pressed="true"
+      <div class="app" role="group" aria-label="Prompt Pad prototype">
+        <aside class="app__sidebar">
+          <header class="app__brand">
+            <span class="app__mark" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                <span>{prototype.allFolder}</span>
-                <span class="folder__count" data-count-for="all">
-                  {prototype.prompts.length}
-                </span>
-              </button>
+                <rect x="3" y="4" width="18" height="16" rx="3"></rect>
+                <path d="m7.5 10 2.5 2-2.5 2"></path>
+                <path d="M13 14h3.5"></path>
+              </svg>
+            </span>
+            <span class="app__name">{prototype.labels.appName}</span>
+          </header>
 
-              {
-                prototype.folders.map((folder) => (
-                  <button
-                    class="folder"
-                    type="button"
-                    data-folder={folder.id}
-                    aria-pressed="false"
-                  >
-                    <span>{folder.name}</span>
-                    <span class="folder__count" data-count-for={folder.id}>
-                      {folderCounts[folder.id]}
-                    </span>
-                  </button>
-                ))
-              }
-            </div>
+          <div class="app__search-wrap">
+            <label class="app__search">
+              <svg
+                class="app__search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="10.5" cy="10.5" r="6.5"></circle>
+                <path d="m20 20-4.6-4.6"></path>
+              </svg>
+              <span class="sr-only">{prototype.labels.searchLabel}</span>
+              <input
+                id="prototype-search"
+                type="search"
+                placeholder={prototype.labels.searchPlaceholder}
+                autocomplete="off"
+                spellcheck="false"
+                data-search
+              />
+            </label>
+          </div>
 
-            <button class="app__reset" type="button" data-reset>
-              {prototype.resetDemo}
-            </button>
-          </aside>
-
-          <div class="app__workspace">
-            <section class="app__list-pane" aria-label={prototype.listLabel}>
-              <div class="search">
-                <label class="sr-only" for="prototype-search">
-                  {prototype.searchLabel}
-                </label>
+          <nav class="app__nav" aria-label="Prompt Pad content">
+            <div class="app__section-head">
+              <span class="app__section-label">
                 <svg
-                  class="search__icon"
-                  viewBox="0 0 20 20"
+                  viewBox="0 0 24 24"
                   fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <circle
-                    cx="9"
-                    cy="9"
-                    r="5.5"
-                    stroke="currentColor"
-                    stroke-width="1.6"></circle>
-                  <path
-                    d="m13.5 13.5 3 3"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"></path>
+                  <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"></path>
                 </svg>
-                <input
-                  id="prototype-search"
-                  type="search"
-                  placeholder={prototype.searchPlaceholder}
-                  autocomplete="off"
-                  spellcheck="false"
-                  data-search
-                />
+                {prototype.labels.quickPrompts}
+              </span>
+              <button
+                type="button"
+                class="app__icon-button"
+                data-add-prompt
+                aria-label={prototype.labels.addPrompt}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14"></path>
+                  <path d="M5 12h14"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="app__rows" data-quick-rows></div>
+
+            <div class="app__section-head app__section-head--spaced">
+              <span class="app__section-label">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"></path>
+                </svg>
+                {prototype.labels.folders}
+              </span>
+              <button
+                type="button"
+                class="app__icon-button"
+                data-add-folder
+                aria-label={prototype.labels.addFolder}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14"></path>
+                  <path d="M5 12h14"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="app__folder-create" data-folder-create hidden>
+              <label class="sr-only" for="prototype-new-folder">
+                {prototype.labels.newFolderPlaceholder}
+              </label>
+              <input
+                id="prototype-new-folder"
+                type="text"
+                placeholder={prototype.labels.newFolderPlaceholder}
+                autocomplete="off"
+                spellcheck="false"
+                data-new-folder
+              />
+            </div>
+
+            <div class="app__rows" data-folder-rows></div>
+          </nav>
+
+          <div class="app__sidebar-foot">
+            <a class="app__coffee" href={links.coffee}>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+                <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z"></path>
+                <path d="M6 2v2"></path>
+                <path d="M10 2v2"></path>
+                <path d="M14 2v2"></path>
+              </svg>
+              {prototype.labels.buyMeCoffee}
+            </a>
+          </div>
+        </aside>
+
+        <div class="app__main">
+          <div class="app__titlebar">
+            <div class="app__window-controls" aria-hidden="true">
+              <span class="app__wc">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14"></path>
+                </svg>
+              </span>
+              <span class="app__wc">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M18 6 6 18"></path>
+                  <path d="m6 6 12 12"></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="app__view">
+            <div class="app__empty" data-view-empty hidden>
+              <h3 class="app__empty-title">{prototype.labels.emptyTitle}</h3>
+              <p class="app__empty-text">{prototype.labels.emptyText}</p>
+              <div class="app__empty-actions">
+                <button type="button" class="app__button" data-create-prompt>
+                  {prototype.labels.createPrompt}
+                </button>
+                <button type="button" class="app__button" data-create-folder>
+                  {prototype.labels.createFolder}
+                </button>
               </div>
+            </div>
 
-              <ul class="prompt-list" data-prompt-list></ul>
-            </section>
-
-            <section class="app__editor" aria-label={prototype.editorLabel}>
-              <div class="empty-editor" data-empty-editor hidden>
-                <p class="empty-editor__title">{prototype.emptyTitle}</p>
-                <p>{prototype.emptyText}</p>
-              </div>
-
-              <div class="editor-fields" data-editor-fields>
-                <label class="field-label" for="prototype-title">
-                  {prototype.titleLabel}
+            <div class="app__detail" data-view-detail hidden>
+              <div class="app__detail-head">
+                <label class="sr-only" for="prototype-title">
+                  {prototype.labels.titleLabel}
                 </label>
                 <input
-                  class="field-input"
                   id="prototype-title"
+                  class="app__title-input"
                   type="text"
+                  placeholder={prototype.labels.untitled}
                   autocomplete="off"
+                  spellcheck="false"
                   data-title
                 />
-
-                <label class="field-label" for="prototype-text">
-                  {prototype.textLabel}
-                </label>
-                <textarea
-                  class="field-textarea"
-                  id="prototype-text"
-                  rows="8"
-                  spellcheck="false"
-                  data-text></textarea>
-
-                <div class="editor-actions">
-                  <button
-                    class="btn btn--primary app__action"
-                    type="button"
-                    data-copy
-                    disabled
+                <button
+                  type="button"
+                  class="app__icon-button app__icon-button--danger"
+                  data-delete
+                  aria-label={prototype.labels.deletePrompt}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
                   >
-                    {prototype.copy}
-                  </button>
-                  <button
-                    class="btn btn--secondary app__action"
-                    type="button"
-                    data-delete
-                    disabled
-                  >
-                    {prototype.delete}
-                  </button>
-                  <span
-                    class="editor-status"
-                    role="status"
-                    aria-live="polite"
-                    data-status></span>
-                </div>
+                    <path d="M3 6h18"></path>
+                    <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"></path>
+                    <path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                  </svg>
+                </button>
               </div>
-            </section>
+
+              <label class="sr-only" for="prototype-body">
+                {prototype.labels.bodyLabel}
+              </label>
+              <textarea
+                id="prototype-body"
+                class="app__body"
+                placeholder={prototype.labels.bodyPlaceholder}
+                spellcheck="false"
+                data-body></textarea>
+
+              <div class="app__detail-actions">
+                <button type="button" class="app__copy" data-copy>
+                  <span class="app__copy-icon" data-copy-icon>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="8" y="8" width="13" height="13" rx="2.5"></rect>
+                      <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+                    </svg>
+                  </span>
+                  <span class="app__copy-icon" data-check-icon hidden>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m20 6-11 11-5-5"></path>
+                    </svg>
+                  </span>
+                  <span data-copy-label>{prototype.labels.copy}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="app__new" data-view-new hidden>
+              <div class="app__detail-head">
+                <label class="sr-only" for="prototype-new-title">
+                  {prototype.labels.newPromptLabel}
+                </label>
+                <input
+                  id="prototype-new-title"
+                  class="app__title-input"
+                  type="text"
+                  placeholder={prototype.labels.addHeading}
+                  autocomplete="off"
+                  spellcheck="false"
+                  data-new-title
+                />
+              </div>
+
+              <label class="sr-only" for="prototype-new-body">
+                {prototype.labels.bodyLabel}
+              </label>
+              <textarea
+                id="prototype-new-body"
+                class="app__body"
+                placeholder={prototype.labels.bodyPlaceholder}
+                spellcheck="false"
+                data-new-body></textarea>
+
+              <div class="app__detail-actions">
+                <button type="button" class="app__save" data-save disabled>
+                  {prototype.labels.save}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -208,7 +379,10 @@ const prototypeData = {
   initPrototype();
 </script>
 
-<style>
+<style is:global>
+  /* Global on purpose: the sidebar rows are rendered by the client script, so
+     they never carry Astro's scoping attribute. Every selector is namespaced
+     under `.app` or `.prototype__`. */
   .prototype__head {
     margin-bottom: clamp(2rem, 4vw, 3rem);
   }
@@ -219,431 +393,610 @@ const prototypeData = {
     padding: 0.25rem 0.6rem;
     border-radius: 999px;
     background: var(--accent-soft);
-    color: var(--accent);
+    color: var(--accent-text);
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-  }
-
-  .app {
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--bg-elevated);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .app__titlebar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    height: 44px;
-    padding-inline: 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-elevated);
-  }
-
-  .app__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-  }
-
-  .app__mark {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-    background: var(--accent);
-    opacity: 0.9;
-  }
-
-  .app__badge {
-    padding: 0.22rem 0.55rem;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .app__sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.85rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-tinted);
-  }
-
-  .app__sidebar-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .app__sidebar-label {
-    color: var(--text-muted);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .app__new {
-    flex-shrink: 0;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    background: var(--accent);
-    color: var(--accent-contrast);
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-  }
-
-  .app__new:hover {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
-  }
-
-  .folder-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
-
-  .folder {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.6rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--bg-elevated);
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: color 0.2s ease, background-color 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  .folder:hover {
-    border-color: var(--border-strong);
-    color: var(--text);
-  }
-
-  .folder.is-active {
-    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  .folder__count {
-    font-size: 0.7rem;
-    opacity: 0.8;
-  }
-
-  .app__reset {
-    align-self: flex-start;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    text-decoration: underline;
-    text-underline-offset: 0.18em;
-    cursor: pointer;
-  }
-
-  .app__reset:hover {
-    color: var(--accent);
-  }
-
-  .app__list-pane {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-elevated);
-  }
-
-  .search {
-    position: relative;
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .search__icon {
-    position: absolute;
-    top: 50%;
-    left: 1.3rem;
-    width: 14px;
-    height: 14px;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
-  }
-
-  .search input {
-    width: 100%;
-    padding: 0.55rem 0.7rem 0.55rem 2.05rem;
-    border: 1px solid var(--border-control);
-    border-radius: 9px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.88rem;
-  }
-
-  .search input::placeholder {
-    color: var(--text-muted);
-    opacity: 1;
-  }
-
-  .prompt-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    max-height: 300px;
-    min-height: 0;
-    margin: 0;
-    padding: 0.5rem;
-    overflow-y: auto;
-    list-style: none;
-  }
-
-  /* The rows are inserted by the client script, so they do not receive
-     Astro's scoping attribute. Use :global() for their styles. */
-  .prompt-list :global(.prompt-row) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    width: 100%;
-    padding: 0.55rem 0.6rem;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-  }
-
-  .prompt-list :global(.prompt-row):hover {
-    background: var(--bg-tinted);
-  }
-
-  .prompt-list :global(.prompt-row.is-selected) {
-    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
-    background: var(--accent-soft);
-  }
-
-  .prompt-list :global(.prompt-row__title) {
-    color: var(--text);
-    font-size: 0.86rem;
-    font-weight: 600;
-  }
-
-  .prompt-list :global(.prompt-row__snippet) {
-    display: -webkit-box;
-    overflow: hidden;
-    color: var(--text-muted);
-    font-size: 0.76rem;
-    line-height: 1.45;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-
-  .prompt-list :global(.prompt-row__folder) {
-    color: var(--accent);
-    font-size: 0.64rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .prompt-list :global(.prompt-empty) {
-    padding: 1.5rem 0.75rem;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    text-align: center;
-  }
-
-  .app__editor {
-    display: flex;
-    flex-direction: column;
-    min-height: 300px;
-    padding: 1rem;
-    background: var(--bg-elevated);
-  }
-
-  .editor-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    min-height: 0;
-  }
-
-  .field-label {
-    margin-top: 0.35rem;
-    color: var(--text-muted);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .field-label:first-child {
-    margin-top: 0;
-  }
-
-  .field-input,
-  .field-textarea {
-    width: 100%;
-    padding: 0.6rem 0.7rem;
-    border: 1px solid var(--border-control);
-    border-radius: 9px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.88rem;
-  }
-
-  .field-input {
-    font-weight: 600;
-  }
-
-  .field-textarea {
-    min-height: 150px;
-    line-height: 1.55;
-    resize: vertical;
-  }
-
-  .editor-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-  }
-
-  .app__action {
-    padding: 0.55rem 0.85rem;
-    border-radius: 9px;
-    font-size: 0.84rem;
-  }
-
-  .app__action:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .editor-status {
-    color: var(--accent);
-    font-size: 0.78rem;
-    font-weight: 600;
-  }
-
-  .empty-editor {
-    display: grid;
-    flex: 1;
-    place-content: center;
-    gap: 0.35rem;
-    padding: 2rem 1rem;
-    color: var(--text-muted);
-    text-align: center;
-  }
-
-  .empty-editor__title {
-    color: var(--text);
-    font-weight: 600;
   }
 
   .prototype__note {
     margin-top: 1rem;
     color: var(--text-muted);
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     text-align: center;
   }
 
-  @media (min-width: 900px) {
-    .app__body {
-      display: grid;
-      grid-template-columns: 200px minmax(0, 1fr);
-    }
+  /* ------------------------------------------------------------------------
+     The app window. Sizes and colors mirror the real app's Tailwind classes.
+     ------------------------------------------------------------------------ */
 
-    .app__sidebar {
-      padding: 1rem;
-      border-right: 1px solid var(--border);
-      border-bottom: 0;
-    }
-
-    .folder-list {
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-
-    .folder {
-      width: 100%;
-      justify-content: space-between;
-      padding: 0.45rem 0.55rem;
-      border-color: transparent;
-      border-radius: 8px;
-      background: transparent;
-    }
-
-    .folder:hover {
-      border-color: var(--border);
-      background: var(--bg-elevated);
-    }
-
-    .folder.is-active {
-      border-color: var(--border);
-      background: var(--bg-elevated);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .app__reset {
-      margin-top: auto;
-    }
-
-    .app__workspace {
-      display: grid;
-      grid-template-columns: 290px minmax(0, 1fr);
-      height: 580px;
-    }
-
-    .app__list-pane {
-      border-right: 1px solid var(--border);
-      border-bottom: 0;
-    }
-
-    .prompt-list {
-      flex: 1;
-      max-height: none;
-    }
-
-    .app__editor {
-      min-height: 0;
-      padding: 1.25rem;
-    }
-
-    .editor-fields {
-      flex: 1;
-    }
-
-    .field-textarea {
-      flex: 1;
-      min-height: 120px;
-      resize: none;
-    }
+  .app {
+    --sidebar-width: 280px;
+    display: flex;
+    height: clamp(430px, 56vw, 560px);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: #0d0d0f;
+    color: #d4d4d8;
+    font-family: var(--font-sans);
+    text-align: left;
+    box-shadow: var(--shadow-lg);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .app__new:hover {
-      transform: none;
+  .app ::selection {
+    background: rgba(45, 212, 191, 0.25);
+    color: #fff;
+  }
+
+  .app__sidebar {
+    display: flex;
+    flex-direction: column;
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    border-right: 1px solid rgba(39, 39, 42, 0.7);
+    background: #0b0b0d;
+  }
+
+  .app__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 56px;
+    padding-inline: 16px;
+    flex-shrink: 0;
+  }
+
+  .app__mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border: 1px solid rgba(63, 63, 70, 0.7);
+    border-radius: 9px;
+    background: #18181b;
+    color: #5eead4;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .app__mark svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .app__name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #f4f4f5;
+  }
+
+  .app__search-wrap {
+    flex-shrink: 0;
+    padding: 4px 12px 0;
+  }
+
+  .app__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding-inline: 10px;
+    border-radius: 8px;
+    background: rgba(24, 24, 27, 0.7);
+    color: #71717a;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .app__search:focus-within {
+    background: #18181b;
+    color: #a1a1aa;
+  }
+
+  .app__search-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .app__search input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: #e4e4e7;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .app__search input::placeholder {
+    color: #71717a;
+  }
+
+  .app__search input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .app__nav {
+    flex: 1;
+    min-height: 0;
+    margin-top: 12px;
+    padding: 0 8px 16px;
+    overflow-y: auto;
+  }
+
+  .app__section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 32px;
+    padding-left: 8px;
+    padding-right: 4px;
+    border-radius: 6px;
+  }
+
+  .app__section-head--spaced {
+    margin-top: 20px;
+  }
+
+  .app__section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #71717a;
+  }
+
+  .app__section-label svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .app__icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    color: #71717a;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .app__icon-button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .app__icon-button:hover {
+    background: #27272a;
+    color: #e4e4e7;
+  }
+
+  .app__icon-button--danger {
+    width: 28px;
+    height: 28px;
+    margin-top: 2px;
+  }
+
+  .app__icon-button--danger:hover {
+    background: rgba(39, 39, 42, 0.7);
+    color: #f87171;
+  }
+
+  .app__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 2px;
+  }
+
+  .app__row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6px 8px 6px 24px;
+    border-radius: 6px;
+    color: #a1a1aa;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .app__row--nested {
+    padding-left: 36px;
+  }
+
+  .app__row span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .app__row:hover {
+    background: rgba(39, 39, 42, 0.4);
+    color: #e4e4e7;
+  }
+
+  .app__row.is-selected {
+    background: rgba(39, 39, 42, 0.8);
+    color: #f4f4f5;
+  }
+
+  .app__folder {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+  }
+
+  .app__folder:hover {
+    background: rgba(39, 39, 42, 0.4);
+  }
+
+  .app__folder-toggle {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 4px 6px 6px;
+    color: #a1a1aa;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .app__folder-toggle:hover {
+    color: #e4e4e7;
+  }
+
+  .app__folder-toggle svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: #52525b;
+    transition: transform 0.15s ease;
+  }
+
+  .app__folder-toggle[aria-expanded='true'] svg {
+    transform: rotate(90deg);
+  }
+
+  .app__folder-toggle span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .app__folder-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 2px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    color: #71717a;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease, background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .app__folder-add svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .app__folder:hover .app__folder-add,
+  .app__folder-add:focus-visible {
+    opacity: 1;
+  }
+
+  .app__folder-add:hover {
+    background: rgba(63, 63, 70, 0.7);
+    color: #e4e4e7;
+  }
+
+  .app__folder-create {
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+
+  .app__folder-create input {
+    width: 100%;
+    height: 28px;
+    padding-inline: 8px;
+    border: 1px solid rgba(63, 63, 70, 0.7);
+    border-radius: 6px;
+    background: rgba(39, 39, 42, 0.6);
+    color: #e4e4e7;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .app__folder-create input:focus {
+    border-color: rgba(20, 184, 166, 0.5);
+  }
+
+  .app__folder-create input::placeholder {
+    color: #71717a;
+  }
+
+  .app__sidebar-foot {
+    flex-shrink: 0;
+    padding: 12px;
+  }
+
+  .app__coffee {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 36px;
+    border-radius: 8px;
+    background: #fff;
+    color: #18181b;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    transition: background-color 0.15s ease;
+  }
+
+  .app__coffee:hover {
+    background: #f4f4f5;
+  }
+
+  .app__coffee svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .app__main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .app__titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 56px;
+    flex-shrink: 0;
+    padding-inline: 8px;
+  }
+
+  .app__window-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .app__wc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 28px;
+    border-radius: 6px;
+    color: #71717a;
+  }
+
+  .app__wc svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .app__view {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .app__empty {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 32px;
+    text-align: center;
+  }
+
+  .app__empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #e4e4e7;
+  }
+
+  .app__empty-text {
+    margin-top: 6px;
+    color: #71717a;
+    font-size: 13px;
+  }
+
+  .app__empty-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .app__button {
+    height: 32px;
+    padding-inline: 14px;
+    border-radius: 8px;
+    background: rgba(39, 39, 42, 0.9);
+    color: #e4e4e7;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .app__button:hover {
+    background: #3f3f46;
+    color: #fff;
+  }
+
+  .app__detail,
+  .app__new {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .app__detail-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px 20px 0;
+  }
+
+  .app__title-input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: #f4f4f5;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    outline: none;
+  }
+
+  .app__title-input::placeholder {
+    color: #52525b;
+  }
+
+  .app__body {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin-top: 12px;
+    padding: 0 20px 8px;
+    border: 0;
+    background: transparent;
+    color: #d4d4d8;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.625;
+    outline: none;
+    resize: none;
+  }
+
+  .app__body::placeholder {
+    color: #52525b;
+  }
+
+  .app__detail-actions {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    padding: 8px 16px 16px;
+  }
+
+  .app__copy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding-inline: 10px;
+    border-radius: 6px;
+    background: #27272a;
+    color: #d4d4d8;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .app__copy:hover {
+    background: #3f3f46;
+    color: #f4f4f5;
+  }
+
+  .app__copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .app__copy-icon {
+    display: inline-flex;
+  }
+
+  .app__save {
+    height: 32px;
+    padding-inline: 16px;
+    border-radius: 8px;
+    background: #27272a;
+    color: #f4f4f5;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .app__save:hover {
+    background: #3f3f46;
+  }
+
+  .app__save:disabled {
+    background: #18181b;
+    color: #52525b;
+    cursor: not-allowed;
+  }
+
+  /* The real app is a desktop window; on small screens the sidebar narrows
+     instead of collapsing so the layout stays recognisable. */
+  @media (max-width: 760px) {
+    .app {
+      --sidebar-width: 46%;
+      height: 470px;
+    }
+
+    .app__brand {
+      padding-inline: 12px;
+      gap: 8px;
+    }
+
+    .app__search-wrap {
+      padding-inline: 8px;
+    }
+
+    .app__nav {
+      padding-inline: 6px;
+    }
+
+    .app__name {
+      font-size: 12px;
+    }
+
+    .app__detail-head {
+      padding-inline: 14px;
+    }
+
+    .app__body {
+      padding-inline: 14px;
     }
   }
 </style>

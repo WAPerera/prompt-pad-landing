@@ -42,17 +42,21 @@ sandbox leaves no tracked files behind: `dist/`, `.astro/`, and
 All copy and links live in `src/data/site.ts`. Components do not contain copy.
 
 The interactive prototype is built from `src/components/Prototype.astro` and
-`src/scripts/prototype.ts`. It runs entirely in memory, demonstrates the core
-workflow, and resets when the page reloads.
+`src/scripts/prototype.ts`. It is a dependency-free port of the desktop app's
+React UI (Tauri + React + Tailwind), so the markup and behaviour mirror the
+real window. Update both files together when the app's UI changes. It runs
+entirely in memory and resets when the page reloads.
+
+The hero window shows `src/screenshots/main-window.png`, optimized by Astro at
+build time, with its description in `hero.screenshot.alt` in `site.ts`.
+Replace that file to update the screenshot.
 
 ## Remaining placeholders
 
 Search the project for `TODO` to find what still needs a real value:
 
-1. The screenshot: add a real image to `src/screenshots/`, import it in
-   `src/components/Hero.astro`, and pass it to `WindowFrame` as `src`
-2. The optional Open Graph image in `src/layouts/Layout.astro`
-3. The Windows version requirement, after verifying it for the current release
+1. The optional Open Graph image in `src/layouts/Layout.astro`
+2. The Windows version requirement, after verifying it for the current release
 
 If you add a custom domain, update `site` in `astro.config.mjs` as well.
 

@@ -11,23 +11,11 @@ export interface SiteLink {
   href: string;
 }
 
-export interface Feature {
-  /** Emoji shown in the icon tile (decorative). */
-  icon: string;
-  title: string;
-  text: string;
-}
-
 export interface ChecklistItem {
   /** Short bold lead-in. */
   lead: string;
   /** Optional supporting sentence. */
   text?: string;
-}
-
-export interface FaqItem {
-  question: string;
-  answer: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -64,171 +52,92 @@ export const site = {
     /** Accessible name for the navigation landmark. */
     ariaLabel: 'Primary',
     links: [
-      { label: 'Features', href: '#features' },
-      { label: 'Prototype', href: '#prototype' },
       { label: 'Privacy', href: '#privacy' },
-      { label: 'FAQ', href: '#faq' },
       { label: 'GitHub', href: links.github },
     ] as SiteLink[],
     cta: { label: 'Download for Windows', href: links.download },
   },
 
   hero: {
-    headline: 'Your prompts. Organized. One click away.',
+    headline: 'Your AI prompts, always at hand.',
     subheadline:
-      'Prompt Pad is a small, fast desktop app for Windows. Keep your prompts in folders, find them instantly, and copy them to your clipboard with a single click.',
+      'A fast, local prompt manager for Windows. Save them once, find them instantly, and reuse them in one click.',
     primaryCta: { label: 'Download for Windows', href: links.download },
     secondaryCta: { label: 'View on GitHub', href: links.github },
     note: 'Free · No account needed · Works offline',
     screenshot: {
-      /** Text shown in the mock app title bar. */
+      /** Text shown in the synthetic title bar (placeholder state only). */
       windowTitle: 'Prompt Pad',
-      /** TODO: Update this description to match your real screenshot. */
-      alt: 'The Prompt Pad main window, showing folders on the left and a list of prompts on the right.',
-      /** Label inside the placeholder box until a real screenshot is added. */
+      alt: 'The Prompt Pad window, with folders in the left sidebar and a prompt titled Scan Design System open in the editor.',
+      /** Label inside the placeholder box if the screenshot is ever removed. */
       placeholderLabel: 'Main window screenshot',
     },
-  },
-
-  features: {
-    title: "Everything you need, nothing you don't",
-    items: [
-      {
-        icon: '🔍',
-        title: 'Instant search',
-        text: 'Type and see results right away across all your prompts and folders.',
-      },
-      {
-        icon: '📋',
-        title: 'One-click copy',
-        text: 'Click once and your prompt is on the clipboard, ready to paste anywhere.',
-      },
-      {
-        icon: '📁',
-        title: 'Folders',
-        text: 'Group prompts by project or topic. Drag folders by their header to reorder them.',
-      },
-      {
-        icon: '⚡',
-        title: 'Quick prompts',
-        text: "Not sure where it belongs? Save it as a quick prompt and sort it later.",
-      },
-      {
-        icon: '✏️',
-        title: 'Auto-save editing',
-        text: 'Edit titles and text freely. Your changes are saved as you type.',
-      },
-      {
-        icon: '🖱️',
-        title: 'Row menu',
-        text: 'Rename or delete with the ⋯ button or a right-click.',
-      },
-      {
-        icon: '🛟',
-        title: 'Safe deleting',
-        text: 'Delete a folder and its prompts move to Quick prompts, so nothing gets lost.',
-      },
-      {
-        icon: '💾',
-        title: 'Backup and restore',
-        text: 'Export everything to a plain JSON file and import it whenever you need.',
-      },
-      {
-        icon: '🔄',
-        title: 'Easy updates',
-        text: 'Prompt Pad tells you when a new version is ready and updates from GitHub Releases.',
-      },
-      {
-        icon: '🪟',
-        title: 'Clean, light window',
-        text: 'A frameless design with a custom title bar. Small, fast, and out of your way.',
-      },
-    ] as Feature[],
-  },
-
-  howItWorks: {
-    title: 'Simple from the first minute',
-    steps: [
-      'Write or paste a prompt. Create a quick prompt or put it directly into a folder.',
-      'Organize it. Make folders, rename them, and drag them into the order you like.',
-      'Find it fast. Start typing in the search bar. Results appear instantly.',
-      "Copy and use it. One click, and it's on your clipboard.",
-    ],
   },
 
   prototype: {
     eyebrow: 'Interactive prototype',
     title: 'Try the prototype',
     intro:
-      'This is a small, working preview of the core Prompt Pad workflow. Create and edit prompts, switch folders, search, and copy. Everything runs in your browser.',
-    badge: 'Prototype',
-    windowTitle: 'Prompt Pad',
+      'The real Prompt Pad window, rebuilt for the browser. Create prompts and folders, search, edit, copy, and delete — all in this page.',
     note: 'Prototype only — changes stay in this page and reset when you reload.',
     noscript:
       'The interactive prototype needs JavaScript. The rest of the page works without it.',
-    foldersLabel: 'Folders',
-    allFolder: 'All prompts',
-    listLabel: 'Prompts',
-    editorLabel: 'Prompt editor',
-    searchLabel: 'Search prompts',
-    searchPlaceholder: 'Search prompts...',
-    newPrompt: 'New prompt',
-    resetDemo: 'Reset demo',
-    copy: 'Copy',
-    copied: 'Copied to clipboard',
-    copyFailed: 'Could not copy. Select the text and copy manually.',
-    delete: 'Delete',
-    titleLabel: 'Title',
-    textLabel: 'Prompt',
-    untitled: 'Untitled prompt',
-    noText: 'No text yet.',
-    noResults: 'No prompts match this view.',
-    emptyTitle: 'No prompts yet',
-    emptyText: 'Select New prompt to add one.',
-    folders: [
-      { id: 'quick', name: 'Quick prompts' },
-      { id: 'work', name: 'Work' },
-      { id: 'writing', name: 'Writing' },
-    ],
+    labels: {
+      appName: 'Prompt Pad',
+      searchPlaceholder: 'search',
+      searchLabel: 'Search prompts',
+      quickPrompts: 'Quick prompts',
+      folders: 'Folders',
+      addPrompt: 'Add prompt',
+      addFolder: 'Add folder',
+      addPromptToFolder: 'Add prompt to {folder}',
+      newFolderPlaceholder: 'New folder',
+      untitledFolder: 'Untitled folder',
+      buyMeCoffee: 'Buy me a coffee',
+      untitled: 'Untitled prompt',
+      titleLabel: 'Prompt title',
+      bodyLabel: 'Prompt text',
+      newPromptLabel: 'New prompt',
+      deletePrompt: 'Delete prompt',
+      copy: 'Copy',
+      copied: 'Copied',
+      addHeading: 'Add a heading',
+      bodyPlaceholder: 'Type your prompt here...',
+      save: 'Save',
+      emptyTitle: 'Your Prompt Pad is empty',
+      emptyText: 'Create your first prompt or folder to get started.',
+      createPrompt: 'Create Prompt',
+      createFolder: 'Create Folder',
+    },
+    folders: [{ id: 'design-workflow', name: 'Design Workflow' }],
     prompts: [
       {
-        id: 'demo-summarize',
-        folder: 'work',
-        title: 'Summarize a long document',
-        text: 'Summarize the document below in five bullet points. Keep the most important numbers and decisions, then finish with one recommended next step.\n\nDocument:\n',
+        id: 'scan-design-system',
+        folderId: null,
+        title: 'Scan Design System',
+        body: 'scan this design system file > [Design System]\n-Setup Figma CLI for this project\n-Update the club member app > Member signup flow\nONLY with this design system\n-Do not hard code components use the existing design components and variables using code connect\n-give me a report of the linked components to the prototype',
       },
       {
-        id: 'demo-status',
-        folder: 'work',
-        title: 'Draft a project update',
-        text: 'Write a short project status update for my team. Include what shipped, what is in progress, current blockers, and the next milestone. Keep it under 150 words.\n\nContext:\n',
+        id: 'seed-to-design',
+        folderId: null,
+        title: 'Seed to Design',
+        body: 'Start the design from the seed file, using only the design system.\n-Keep tokens, components and variables in sync\n-Do not create new components unless the flow needs it',
       },
       {
-        id: 'demo-tighten',
-        folder: 'writing',
-        title: 'Tighten this paragraph',
-        text: 'Rewrite the paragraph below for clarity and concision. Keep the meaning and tone, remove filler, and return only the revised paragraph.\n\nParagraph:\n',
+        id: 'member-signup',
+        folderId: 'design-workflow',
+        title: 'Member signup flow',
+        body: 'Map the member signup flow end to end.\n-List every screen and its states\n-Use the existing form components\n-Call out anything that needs a new component',
       },
       {
-        id: 'demo-titles',
-        folder: 'writing',
-        title: 'Suggest stronger titles',
-        text: 'Give me five title options for the piece below. Make them specific and concrete, and avoid clickbait.\n\nPiece:\n',
-      },
-      {
-        id: 'demo-explain',
-        folder: 'quick',
-        title: 'Explain it simply',
-        text: 'Explain the concept below in plain language for someone new to the topic. Use a short everyday analogy, then give one concrete example.\n\nConcept:\n',
-      },
-      {
-        id: 'demo-tasks',
-        folder: 'quick',
-        title: 'Turn notes into tasks',
-        text: 'Turn these meeting notes into a checklist of clear action items. Assign an owner when one is mentioned and call out anything that is still unclear.\n\nNotes:\n',
+        id: 'audit-components',
+        folderId: 'design-workflow',
+        title: 'Audit components',
+        body: 'Audit the club member app against the design system.\n-List components that drift from the library\n-Report hard-coded values\n-Suggest the right variables to link',
       },
     ],
-    defaultPromptId: 'demo-summarize',
+    /** The prompt opened on load, so the demo starts on a filled editor. */
+    defaultPromptId: 'scan-design-system',
   },
 
   privacy: {
@@ -272,48 +181,6 @@ export const site = {
       text: 'Enjoying Prompt Pad?',
       link: { label: '☕ Buy me a coffee', href: links.coffee },
     },
-  },
-
-  faq: {
-    title: 'FAQ',
-    items: [
-      {
-        question: 'Where are my prompts saved?',
-        answer:
-          'On your computer, inside the app\'s local storage. They are never sent anywhere.',
-      },
-      {
-        question: 'Do I need an account?',
-        answer: 'No. There is no sign-up and no login.',
-      },
-      {
-        question: 'Does Prompt Pad work offline?',
-        answer: 'Yes. The only internet use is the update check.',
-      },
-      {
-        question: 'How do I back up my prompts?',
-        answer:
-          'Open Settings and choose Export. You get a plain JSON file you can store anywhere. To restore, choose Import.',
-      },
-      {
-        question: 'What happens if I import a backup?',
-        answer:
-          'The file is checked first. Before your current data is replaced, the app creates an automatic local backup.',
-      },
-      {
-        question: 'What happens when I delete a folder?',
-        answer: "Its prompts move to Quick prompts, so you don't lose anything.",
-      },
-      {
-        question: 'How do updates work?',
-        answer:
-          "At startup, Prompt Pad checks GitHub Releases. If there's a new version, you'll see a small notification bubble. You can also check manually in Settings.",
-      },
-      {
-        question: 'Is it free?',
-        answer: 'Yes. If you like it, you can support the project with a coffee.',
-      },
-    ] as FaqItem[],
   },
 
   footer: {
