@@ -6,7 +6,7 @@ const { privacy } = site;
 
 <section
   id="privacy"
-  class="section section--tinted"
+  class="section section--tinted reveal"
   aria-labelledby="privacy-title"
 >
   <div class="container privacy__inner">
@@ -15,7 +15,7 @@ const { privacy } = site;
       <p class="section-lede">{privacy.intro}</p>
     </div>
 
-    <ul class="checklist reveal" role="list">
+    <ul class="checklist" role="list">
       {
         privacy.checklist.map((item) => (
           <li class="checklist__item">

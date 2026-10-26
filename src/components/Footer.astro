@@ -1,20 +1,32 @@
 ---
 import { site } from '../data/site';
+import { Image } from 'astro:assets';
+import icon from '../assets/icon.png';
 
-const { footer } = site;
+const { footer, nav } = site;
 ---
 
 <footer class="footer">
-  <div class="container">
-    <div class="footer__top">
-      <p class="footer__description">{footer.description}</p>
+  <div class="container footer__inner">
+    <div class="footer__row">
+      <a class="footer__brand" href={nav.home.href}>
+        <Image
+          class="footer__mark"
+          src={icon}
+          alt=""
+          width={56}
+          height={56}
+          loading="lazy"
+        />
+        <span class="footer__name">{nav.home.label}</span>
+      </a>
 
       <nav class="footer__nav" aria-label={footer.ariaLabel}>
         <ul class="footer__links" role="list">
           {
             footer.links.map((link) => (
               <li>
-                <a href={link.href}>{link.label}</a>
+                <a href={link.href} rel="noreferrer">{link.label}</a>
               </li>
             ))
           }
@@ -22,9 +34,7 @@ const { footer } = site;
       </nav>
     </div>
 
-    <div class="footer__bottom">
-      <p>{footer.bottom}</p>
-    </div>
+    <p class="footer__legal">{footer.copyright}</p>
   </div>
 </footer>
 
@@ -35,20 +45,46 @@ const { footer } = site;
     background: var(--bg);
   }
 
-  .footer__top {
-    display: grid;
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
   }
 
-  .footer__description {
-    max-width: 34ch;
-    color: var(--text-muted);
+  .footer__row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .footer__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    align-self: flex-start;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+  }
+
+  .footer__mark {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  .footer__name {
+    font-size: 0.98rem;
   }
 
   .footer__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
+    gap: 0.5rem 1.5rem;
     margin: 0;
     list-style: none;
   }
@@ -64,13 +100,7 @@ const { footer } = site;
     text-decoration: underline;
   }
 
-  .footer__bottom {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem 1rem;
-    margin-top: 2.5rem;
+  .footer__legal {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
     color: var(--text-muted);
@@ -78,13 +108,11 @@ const { footer } = site;
   }
 
   @media (min-width: 720px) {
-    .footer__top {
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: start;
-    }
-
-    .footer__links {
-      justify-content: flex-end;
+    .footer__row {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
     }
   }
 </style>

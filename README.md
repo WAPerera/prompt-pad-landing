@@ -41,6 +41,17 @@ sandbox leaves no tracked files behind: `dist/`, `.astro/`, and
 
 All copy and links live in `src/data/site.ts`. Components do not contain copy.
 
+The `/features` page lists every app feature. Its copy lives in
+`featuresPage` in `site.ts`.
+
+The app icon lives in `src/assets/icon.png`. It renders as the header and
+footer logo, and the favicon plus apple-touch-icon are generated from it at
+build time.
+
+The Windows installer is served from `public/download/`. To publish a new
+version, add the new `*-setup.exe` there and update `links.download` in
+`site.ts` to match.
+
 The interactive prototype is built from `src/components/Prototype.astro` and
 `src/scripts/prototype.ts`. It is a dependency-free port of the desktop app's
 React UI (Tauri + React + Tailwind), so the markup and behaviour mirror the

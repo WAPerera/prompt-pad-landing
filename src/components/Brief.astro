@@ -1,0 +1,85 @@
+---
+/**
+ * One-sentence summary shown directly above the interactive prototype,
+ * framed by a radiant accent border.
+ */
+import { site } from '../data/site';
+---
+
+<section class="brief reveal" aria-label="About Prompt Pad">
+  <div class="container">
+    <div class="brief__card">
+      <p class="brief__text">{site.brief}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .brief {
+    /* The card's halo bleeds past the container; clip it horizontally so it
+       never adds a horizontal scrollbar. */
+    overflow-x: clip;
+    padding-block: clamp(1rem, 2.5vw, 2rem);
+  }
+
+  .brief__card {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(2rem, 5vw, 3.25rem) clamp(1.5rem, 5vw, 3.5rem);
+    border-radius: var(--radius-lg);
+    background: radial-gradient(
+        120% 160% at 50% -20%,
+        color-mix(in srgb, var(--accent) 12%, transparent),
+        transparent 65%
+      ),
+      var(--bg-elevated);
+    text-align: center;
+    box-shadow: 0 24px 80px -30px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  /* Radiant keyline: a gradient border drawn with a masked overlay. */
+  .brief__card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 85%, transparent),
+      color-mix(in srgb, var(--accent) 18%, transparent) 45%,
+      color-mix(in srgb, var(--accent) 65%, transparent)
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Soft glow spilling out from behind the card. */
+  .brief__card::after {
+    content: '';
+    position: absolute;
+    inset: -18% -8%;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      62% 62% at 50% 50%,
+      color-mix(in srgb, var(--accent) 30%, transparent),
+      transparent 72%
+    );
+    filter: blur(28px);
+    pointer-events: none;
+  }
+
+  .brief__text {
+    max-width: 60ch;
+    margin-inline: auto;
+    color: var(--text);
+    font-size: clamp(1.15rem, 2.1vw, 1.5rem);
+    line-height: 1.6;
+    text-wrap: balance;
+  }
+</style>

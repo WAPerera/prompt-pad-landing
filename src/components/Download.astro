@@ -4,14 +4,14 @@ import { site } from '../data/site';
 const { download } = site;
 ---
 
-<section id="download" class="section" aria-labelledby="download-title">
+<section id="download" class="section reveal" aria-labelledby="download-title">
   <div class="container">
-    <div class="download reveal">
+    <div class="download">
       <h2 id="download-title" class="download__title">{download.title}</h2>
       <p class="download__text">{download.text}</p>
 
       <div class="download__actions">
-        <a class="btn btn--primary btn--lg" href={download.cta.href}>
+        <a class="btn btn--primary btn--lg" href={download.cta.href} download>
           {download.cta.label}
         </a>
       </div>

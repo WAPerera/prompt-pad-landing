@@ -26,11 +26,14 @@ export interface ChecklistItem {
  * Every outbound link is defined here exactly once.
  */
 export const links = {
-  github: 'https://github.com/WAPerera/Prompt-pad',
-  releases: 'https://github.com/WAPerera/Prompt-pad/releases',
-  /** Always points at the newest published release. */
-  download: 'https://github.com/WAPerera/Prompt-pad/releases/latest',
+  /**
+   * The Windows installer, served from `public/download/`. Replace that file
+   * (and this path) when you publish a new version.
+   */
+  download: '/download/Prompt-Pad-1.1.0-x64-setup.exe',
   coffee: 'https://ko-fi.com/arjxnp',
+  linkedin: 'https://lk.linkedin.com/in/arjunpereraofficial',
+  macWaitlist: 'https://tally.so/r/DqqN2Z',
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -48,22 +51,19 @@ export const site = {
   },
 
   nav: {
-    home: { label: 'Prompt Pad', href: '#top' },
+    home: { label: 'Prompt Pad', href: '/' },
     /** Accessible name for the navigation landmark. */
     ariaLabel: 'Primary',
-    links: [
-      { label: 'Privacy', href: '#privacy' },
-      { label: 'GitHub', href: links.github },
-    ] as SiteLink[],
+    links: [{ label: 'Features', href: '/features' }] as SiteLink[],
     cta: { label: 'Download for Windows', href: links.download },
   },
 
   hero: {
     headline: 'Your AI prompts, always at hand.',
-    subheadline:
-      'A fast, local prompt manager for Windows. Save them once, find them instantly, and reuse them in one click.',
+    subheadline: 'Save them once, find them instantly, and reuse them in one click.',
     primaryCta: { label: 'Download for Windows', href: links.download },
-    secondaryCta: { label: 'View on GitHub', href: links.github },
+    /** Secondary call to action: the macOS waitlist form. */
+    macCta: { label: 'Join the macOS Waitlist', href: links.macWaitlist },
     note: 'Free · No account needed · Works offline',
     screenshot: {
       /** Text shown in the synthetic title bar (placeholder state only). */
@@ -74,11 +74,79 @@ export const site = {
     },
   },
 
+  /** Short statement shown directly under the hero. */
+  brief:
+    'Prompt Pad is a lightweight, local desktop app that organizes your best ChatGPT and Claude prompts by task. Copy them in one click.',
+
+  /** The problem/solution story shown just above the prototype. */
+  story: {
+    title: 'Ever lose 10 minutes digging for a prompt you know you saved?',
+    paragraphs: [
+      "You waste time scrolling through Notion docs or old ChatGPT chats just to copy a prompt you've written before.",
+      "Prompt Pad fixes this. It's a tiny desktop app that sits on your screen. Open it, click your saved prompt, and hit Copy. It takes 2 seconds—and it works with ChatGPT, Claude, and Cursor. No logins. No cloud. Just your prompts, exactly when you need them.",
+    ],
+  },
+
+  /** The standalone /features page. */
+  featuresPage: {
+    eyebrow: 'Features',
+    title: 'Everything Prompt Pad does',
+    intro:
+      'A small, focused app. Here is the whole list — no hidden menus, no tiers.',
+    items: [
+      {
+        lead: 'Instant search',
+        text: 'Start typing and the sidebar filters your prompts by title as you go.',
+      },
+      {
+        lead: 'Quick prompts',
+        text: 'Save a prompt without choosing a folder. Quick prompts stay at the top of the sidebar.',
+      },
+      {
+        lead: 'Folders',
+        text: 'Group prompts by project or topic, expand and collapse them, and create new folders inline.',
+      },
+      {
+        lead: 'One-click copy',
+        text: 'Open a prompt and press Copy. The full text lands on your clipboard, ready to paste.',
+      },
+      {
+        lead: 'Edit in place',
+        text: 'Change a title or body and it saves as you type — there is no Save button to forget.',
+      },
+      {
+        lead: 'Delete in one click',
+        text: 'Remove a prompt from the trash icon in its header.',
+      },
+      {
+        lead: 'Saved on your device',
+        text: 'Prompts and folders are stored locally and restored the next time you open the app.',
+      },
+      {
+        lead: 'No account, no cloud',
+        text: 'No sign-up, no sync, and no telemetry. Your prompts never leave your computer.',
+      },
+      {
+        lead: 'Works offline',
+        text: 'The app only touches the network to check for updates.',
+      },
+      {
+        lead: 'Frameless window',
+        text: 'A custom title bar with minimize and close; drag the window from its top strip.',
+      },
+      {
+        lead: 'Made for your AI tools',
+        text: 'Paste what you copy straight into ChatGPT, Claude, or Cursor.',
+      },
+    ],
+    cta: { label: 'Download for Windows', href: links.download },
+  },
+
   prototype: {
     eyebrow: 'Interactive prototype',
-    title: 'Try the prototype',
+    title: 'Try Before You Download',
     intro:
-      'The real Prompt Pad window, rebuilt for the browser. Create prompts and folders, search, edit, copy, and delete — all in this page.',
+      'Play with the live demo below. Add a folder, copy a prompt, and see how fast it is.',
     note: 'Prototype only — changes stay in this page and reset when you reload.',
     noscript:
       'The interactive prototype needs JavaScript. The rest of the page works without it.',
@@ -158,7 +226,7 @@ export const site = {
       },
       {
         lead: 'Minimal internet use.',
-        text: 'The app only checks GitHub Releases for updates, at startup and when you press "Check for updates".',
+        text: 'The app only checks for updates, at startup and when you press "Check for updates".',
       },
       {
         lead: 'You control your backups.',
@@ -174,7 +242,7 @@ export const site = {
   download: {
     title: 'Ready to try Prompt Pad?',
     text: "Download the latest version for Windows. It's free, small, and quick to set up.",
-    cta: { label: 'Download from GitHub Releases', href: links.releases },
+    cta: { label: 'Download for Windows', href: links.download },
     /** TODO: Verify the system requirements for your current release. */
     note: 'Requires Windows 10 or newer with WebView2.',
     support: {
@@ -184,22 +252,18 @@ export const site = {
   },
 
   footer: {
-    description: 'Prompt Pad, a simple prompt manager for Windows.',
     /** Accessible name for the footer navigation landmark. */
     ariaLabel: 'Footer',
+    copyright:
+      '© 2026 Prompt Pad. Built with curiosity and too much coffee.',
     links: [
-      { label: 'GitHub', href: links.github },
-      { label: 'Releases', href: links.releases },
-      { label: 'Privacy', href: '#privacy' },
       { label: 'Buy me a coffee', href: links.coffee },
+      { label: "Let's connect on LinkedIn.", href: links.linkedin },
     ] as SiteLink[],
-    bottom: 'Made with care. No tracking, ever.',
   },
 
   /** Small strings used by assistive technology and UI controls. */
   a11y: {
     skipToContent: 'Skip to content',
-    openMenu: 'Open menu',
-    closeMenu: 'Close menu',
   },
 };

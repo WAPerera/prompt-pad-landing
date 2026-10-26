@@ -346,6 +346,18 @@ p {
   transform: translateY(0);
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn:disabled:hover {
+  transform: none;
+  border-color: var(--border-control);
+  color: var(--text);
+}
+
 /* --------------------------------------------------------------------------
    6. Scroll reveal
    The `js-reveal` class is only added by the script in Layout.astro when
@@ -356,13 +368,11 @@ p {
 @media (prefers-reduced-motion: no-preference) {
   html.js-reveal .reveal {
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.7s ease-out;
   }
 
   html.js-reveal .reveal.is-visible {
     opacity: 1;
-    transform: none;
   }
 }
 

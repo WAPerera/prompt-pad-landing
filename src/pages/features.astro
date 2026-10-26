@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+const { featuresPage } = site;
+---
+
+<Layout
+  title="Features — Prompt Pad"
+  description="Every feature in Prompt Pad, the local prompt manager for Windows: instant search, folders, quick prompts, one-click copy, and offline storage."
+>
+  <Nav />
+
+  <main id="main" tabindex="-1">
+    <section class="section features-page reveal" aria-labelledby="features-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="features-page__eyebrow">{featuresPage.eyebrow}</p>
+          <h1 id="features-title" class="features-page__title">{featuresPage.title}</h1>
+          <p class="section-lede">{featuresPage.intro}</p>
+        </header>
+
+        <ul class="feature-list" role="list">
+          {
+            featuresPage.items.map((item) => (
+              <li class="feature">
+                <span class="feature__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="m20 6-11 11-5-5"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+                <div class="feature__body">
+                  <h2 class="feature__title">{item.lead}</h2>
+                  <p class="feature__text">{item.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="features-page__cta">
+          <a class="btn btn--primary btn--lg" href={featuresPage.cta.href} download>
+            {featuresPage.cta.label}
+          </a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .features-page {
+    min-height: 60vh;
+  }
+
+  .features-page__eyebrow {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .features-page__title {
+    font-size: clamp(2rem, 4.6vw, 3rem);
+    letter-spacing: -0.035em;
+  }
+
+  .feature-list {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .feature__icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-text);
+  }
+
+  .feature__icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .feature__title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .feature__text {
+    margin-top: 0.2rem;
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .features-page__cta {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  @media (min-width: 900px) {
+    .feature-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.75rem 3rem;
+      max-width: none;
+    }
+  }
+</style>
