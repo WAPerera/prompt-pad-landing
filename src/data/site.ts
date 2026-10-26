@@ -212,6 +212,8 @@ export const site = {
     title: 'Your prompts stay yours',
     intro:
       'Prompt Pad keeps everything on your computer. No sign-up, no tracking, no surprises.',
+    /** Footnote clarifying that website analytics are not app tracking. */
+    note: 'The app itself has no analytics or tracking. This website uses Hotjar to understand how visitors use these pages.',
     checklist: [
       {
         lead: 'Stored locally.',
