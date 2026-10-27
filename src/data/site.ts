@@ -32,7 +32,6 @@ export const links = {
    */
   download: '/download/Prompt-Pad-1.2.1-x64-setup.exe',
   coffee: 'https://ko-fi.com/arjxnp',
-  linkedin: 'https://lk.linkedin.com/in/arjunpereraofficial',
   macWaitlist: 'https://tally.so/r/DqqN2Z',
 } as const;
 
@@ -260,7 +259,6 @@ export const site = {
       '© 2026 Prompt Pad. Built with curiosity and too much coffee.',
     links: [
       { label: 'Buy me a coffee', href: links.coffee },
-      { label: "Let's connect on LinkedIn.", href: links.linkedin },
     ] as SiteLink[],
   },
 
